@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MobileNavComponent } from '../mobile-nav/mobile-nav.component';
@@ -17,16 +17,17 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent {
   private router = inject(Router);
   private authService = inject(AuthService);
+  private destroyRef = inject(DestroyRef);
   
   isLoggedIn = signal(false);
   
-  ngOnInit(): void {
+  constructor() {
     // Get auth state from AuthService
     this.authService.isAuthenticated$
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(isAuthenticated => {
         this.isLoggedIn.set(isAuthenticated);
       });
