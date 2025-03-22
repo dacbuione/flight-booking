@@ -1,0 +1,74 @@
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h2 class="mb-0">Đăng nhập</h2>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-danger" *ngIf="errorMessage">{{ errorMessage }}</div>
+          
+          <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+            <!-- Email -->
+            <div class="form-floating mb-3">
+              <input type="email" class="form-control" id="email" placeholder="Email" formControlName="email"
+                [ngClass]="{'is-invalid': loginForm.get('email')?.invalid && loginForm.get('email')?.touched}">
+              <label for="email">Email</label>
+              <div class="invalid-feedback" *ngIf="loginForm.get('email')?.errors?.['required']">
+                Email là bắt buộc
+              </div>
+              <div class="invalid-feedback" *ngIf="loginForm.get('email')?.errors?.['email']">
+                Vui lòng nhập địa chỉ email hợp lệ
+              </div>
+            </div>
+            
+            <!-- Password -->
+            <div class="form-floating mb-3">
+              <input type="password" class="form-control" id="password" placeholder="Mật khẩu" formControlName="password"
+                [ngClass]="{'is-invalid': loginForm.get('password')?.invalid && loginForm.get('password')?.touched}">
+              <label for="password">Mật khẩu</label>
+              <div class="invalid-feedback" *ngIf="loginForm.get('password')?.errors?.['required']">
+                Mật khẩu là bắt buộc
+              </div>
+              <div class="invalid-feedback" *ngIf="loginForm.get('password')?.errors?.['minlength']">
+                Mật khẩu phải có ít nhất 6 ký tự
+              </div>
+            </div>
+            
+            <!-- Remember Me -->
+            <div class="mb-3 form-check">
+              <input type="checkbox" class="form-check-input" id="rememberMe" formControlName="rememberMe">
+              <label class="form-check-label" for="rememberMe">Ghi nhớ đăng nhập</label>
+            </div>
+            
+            <!-- Submit Button -->
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary" [disabled]="loginForm.invalid || isLoading">
+                <span class="spinner-border spinner-border-sm me-2" *ngIf="isLoading"></span>
+                Đăng nhập
+              </button>
+              <a routerLink="/auth/register" class="btn btn-outline-secondary">
+                Chưa có tài khoản? Đăng ký ngay
+              </a>
+            </div>
+          </form>
+          
+          <div class="mt-4 text-center">
+            <a href="#" class="text-decoration-none">Quên mật khẩu?</a>
+          </div>
+          
+          <hr class="my-4">
+          
+          <div class="d-grid gap-2">
+            <button class="btn btn-outline-primary">
+              <i class="bi bi-google me-2"></i> Đăng nhập với Google
+            </button>
+            <button class="btn btn-outline-primary">
+              <i class="bi bi-facebook me-2"></i> Đăng nhập với Facebook
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

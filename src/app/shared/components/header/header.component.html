@@ -1,0 +1,64 @@
+<header class="header">
+  <div class="header-content">
+    <div class="container">
+      <div class="header-inner">
+        <div class="logo">
+          <a routerLink="/">
+            <img
+              src="assets/images/logo/webbanve-logo.png"
+              alt="WebBanVe Logo"
+            />
+          </a>
+        </div>
+
+        <div class="navigation">
+          <nav>
+            <ul class="nav-menu">
+              <li class="nav-item dropdown">
+                <a class="nav-link" routerLink="/flight-search"> Vé máy bay </a>
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link"
+                  [routerLink]="['/tours']"
+                  routerLinkActive="active"
+                  >Tour du lịch</a
+                >
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link"
+                  [routerLink]="['/hotels']"
+                  routerLinkActive="active"
+                  >Khách sạn</a
+                >
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" routerLink="/news" routerLinkActive="active"
+                  >Tin tức</a
+                >
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" routerLink="/lien-he">Liên hệ</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" routerLink="/frequent-flyer">VIP</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+
+        <div class="contact-info">
+          <div class="contact-item">
+            <div class="hotline">
+              Hotline: <span class="phone-number">0123 456 789</span>
+            </div>
+            <div class="working-hours">
+              Giờ làm việc: <span class="hours">Từ 8h - 22h</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>

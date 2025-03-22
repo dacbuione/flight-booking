@@ -1,0 +1,130 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Cursor Project Rules - Flight Booking Angular Project
+
+## Project Information
+
+- **Project Name**: Flight Booking
+- **Framework**: Angular 19
+- **Language**: TypeScript
+- **Architecture**: Angular SSR (Server-Side Rendering)
+
+## General Rules
+
+### Project Structure
+
+- Follow standard Angular directory structure
+- Each component must be in its own directory with `.ts`, `.html`, `.scss`, and `.spec.ts` files
+- Shared components in `shared/components` directory
+- Services in `core/services` directory
+- Models in `core/models` directory
+- Guards in `core/guards` directory
+- Interceptors in `core/interceptors` directory
+- Utils/Helpers in `core/utils` directory
+- Pipes in `shared/pipes` directory
+- Directives in `shared/directives` directory
+
+### Naming Conventions
+
+- **Component**: PascalCase for class names and file names, e.g., `FlightSearchComponent` in `flight-search.component.ts`
+- **Service**: PascalCase for class names and file names, e.g., `FlightService` in `flight.service.ts`
+- **Interface/Model**: PascalCase with "I" prefix for interfaces, e.g., `IFlight` or no prefix for models, e.g., `Flight`
+- **Enum**: PascalCase, e.g., `FlightStatus`
+- **Constants**: UPPER_SNAKE_CASE, e.g., `API_ENDPOINTS`
+- **Variables and functions**: camelCase, e.g., `getFlightDetails()`
+- **Component selectors**: kebab-case, e.g., `app-flight-search`
+
+### General Code Rules
+
+- Use TypeScript strict mode
+- Avoid using `any` type, always define proper types
+- Use Signals for state management
+- Use async/await instead of Promise chains
+- Use RxJS efficiently and always unsubscribe to prevent memory leaks
+- Apply functional programming when possible (use map, filter, reduce...)
+- Implement lazy loading for modules/routes
+- Use Angular's dependency injection
+
+### API and HTTP Rules
+
+- Use Angular's HttpClient
+- Define all API endpoints in a constants file
+- Handle all HTTP requests in services, not directly in components
+- Use interceptors for token handling, error handling
+- Use clear interfaces for requests and responses
+
+### State Management
+
+- Use Signals for state management
+- Use computed() for derived states
+- Avoid global state unless necessary
+- Use input() for component props
+
+### Testing
+
+- Each component should have a spec file
+- Use Jasmine and Karma for unit testing
+- Use TestBed for Angular testing
+- Mock dependencies when testing
+- Test important business logic
+
+### Performance
+
+- Use OnPush change detection strategy
+- Avoid heavy computation in templates
+- Use trackBy for \*ngFor
+- Optimize bundle size with lazy loading
+- Apply SSR (Server-Side Rendering) for SEO and performance
+
+### Accessibility
+
+- Follow WCAG 2.1 AA guidelines
+- Use semantic HTML
+- Ensure keyboard navigation
+- Use ARIA attributes when necessary
+- Check contrast ratio for text
+
+### Responsive Design
+
+- Use mobile-first approach
+- Use CSS Grid and Flexbox for layout
+- Use media queries
+- Test on multiple screen sizes
+
+### Error Handling
+
+- Handle errors consistently
+- Use error interceptor for HTTP errors
+- Display user-friendly error messages
+- Log errors on the server side
+
+### Internationalization (i18n)
+
+- Use Angular i18n or ngx-translate
+- Don't hardcode text in templates or code
+- Support multiple languages
+
+### Security
+
+- Sanitize user input
+- Protect against XSS attacks
+- Use HttpOnly cookies for authentication
+- Implement CSRF protection
+- Follow Content Security Policy
+
+## Linting and Formatting Configuration
+
+- Use ESLint with Angular ESLint rules
+- Use Prettier for code formatting
+- Use Husky pre-commit hooks for linting and formatting
+
+## Documentation
+
+- Write clear README.md
+- Document API endpoints
+- Document architecture decisions
+- Update documentation for major changes
+

@@ -1,0 +1,110 @@
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h2 class="mb-0">Đăng ký tài khoản</h2>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-danger" *ngIf="errorMessage">{{ errorMessage }}</div>
+          
+          <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+            <!-- Họ và tên -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <div class="form-floating">
+                  <input type="text" class="form-control" id="firstName" placeholder="Họ" formControlName="firstName"
+                    [ngClass]="{'is-invalid': registerForm.get('firstName')?.invalid && registerForm.get('firstName')?.touched}">
+                  <label for="firstName">Họ</label>
+                  <div class="invalid-feedback" *ngIf="registerForm.get('firstName')?.errors?.['required']">
+                    Họ là bắt buộc
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-6">
+                <div class="form-floating">
+                  <input type="text" class="form-control" id="lastName" placeholder="Tên" formControlName="lastName"
+                    [ngClass]="{'is-invalid': registerForm.get('lastName')?.invalid && registerForm.get('lastName')?.touched}">
+                  <label for="lastName">Tên</label>
+                  <div class="invalid-feedback" *ngIf="registerForm.get('lastName')?.errors?.['required']">
+                    Tên là bắt buộc
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Email -->
+            <div class="form-floating mb-3">
+              <input type="email" class="form-control" id="email" placeholder="Email" formControlName="email"
+                [ngClass]="{'is-invalid': registerForm.get('email')?.invalid && registerForm.get('email')?.touched}">
+              <label for="email">Email</label>
+              <div class="invalid-feedback" *ngIf="registerForm.get('email')?.errors?.['required']">
+                Email là bắt buộc
+              </div>
+              <div class="invalid-feedback" *ngIf="registerForm.get('email')?.errors?.['email']">
+                Vui lòng nhập địa chỉ email hợp lệ
+              </div>
+            </div>
+            
+            <!-- Số điện thoại -->
+            <div class="form-floating mb-3">
+              <input type="tel" class="form-control" id="phone" placeholder="Số điện thoại" formControlName="phone">
+              <label for="phone">Số điện thoại (tùy chọn)</label>
+            </div>
+            
+            <!-- Mật khẩu -->
+            <div class="form-floating mb-3">
+              <input type="password" class="form-control" id="password" placeholder="Mật khẩu" formControlName="password"
+                [ngClass]="{'is-invalid': registerForm.get('password')?.invalid && registerForm.get('password')?.touched}">
+              <label for="password">Mật khẩu</label>
+              <div class="invalid-feedback" *ngIf="registerForm.get('password')?.errors?.['required']">
+                Mật khẩu là bắt buộc
+              </div>
+              <div class="invalid-feedback" *ngIf="registerForm.get('password')?.errors?.['minlength']">
+                Mật khẩu phải có ít nhất 6 ký tự
+              </div>
+            </div>
+            
+            <!-- Xác nhận mật khẩu -->
+            <div class="form-floating mb-3">
+              <input type="password" class="form-control" id="confirmPassword" placeholder="Xác nhận mật khẩu" formControlName="confirmPassword"
+                [ngClass]="{'is-invalid': (registerForm.get('confirmPassword')?.touched && registerForm.errors?.['passwordMismatch']) || 
+                (registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched)}">
+              <label for="confirmPassword">Xác nhận mật khẩu</label>
+              <div class="invalid-feedback" *ngIf="registerForm.get('confirmPassword')?.errors?.['required']">
+                Vui lòng xác nhận mật khẩu
+              </div>
+              <div class="invalid-feedback" *ngIf="registerForm.errors?.['passwordMismatch']">
+                Mật khẩu xác nhận không khớp
+              </div>
+            </div>
+            
+            <!-- Điều khoản sử dụng -->
+            <div class="mb-3 form-check">
+              <input type="checkbox" class="form-check-input" id="termsAccepted" formControlName="termsAccepted"
+                [ngClass]="{'is-invalid': registerForm.get('termsAccepted')?.invalid && registerForm.get('termsAccepted')?.touched}">
+              <label class="form-check-label" for="termsAccepted">
+                Tôi đã đọc và đồng ý với <a href="#" target="_blank">điều khoản sử dụng</a>
+              </label>
+              <div class="invalid-feedback" *ngIf="registerForm.get('termsAccepted')?.errors?.['required']">
+                Bạn phải đồng ý với điều khoản sử dụng
+              </div>
+            </div>
+            
+            <!-- Submit Button -->
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary" [disabled]="registerForm.invalid || isLoading">
+                <span class="spinner-border spinner-border-sm me-2" *ngIf="isLoading"></span>
+                Đăng ký
+              </button>
+              <a routerLink="/auth/login" class="btn btn-outline-secondary">
+                Đã có tài khoản? Đăng nhập
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

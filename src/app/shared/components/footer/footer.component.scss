@@ -1,0 +1,19 @@
+.footer {
+  margin-top: 3rem;
+}
+
+.footer hr {
+  opacity: 0.2;
+}
+
+.social-links {
+  a {
+    font-size: 1.25rem;
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: translateY(-3px);
+      opacity: 0.8;
+    }
+  }
+} 

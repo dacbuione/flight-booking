@@ -1,0 +1,149 @@
+<div class="container py-5">
+  <div class="card shadow">
+    <div class="card-header bg-primary text-white">
+      <h2 class="mb-0">Tìm kiếm chuyến bay</h2>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
+        <!-- Trip Type Selection -->
+        <div class="mb-4">
+          <div class="btn-group" role="group" formGroupName="tripType">
+            <input type="radio" class="btn-check" name="tripType" id="roundTrip" value="roundTrip" formControlName="tripType">
+            <label class="btn btn-outline-primary" for="roundTrip">Khứ hồi</label>
+            
+            <input type="radio" class="btn-check" name="tripType" id="oneWay" value="oneWay" formControlName="tripType">
+            <label class="btn btn-outline-primary" for="oneWay">Một chiều</label>
+          </div>
+        </div>
+        
+        <!-- Origin & Destination -->
+        <div class="row mb-4">
+          <div class="col-md-5">
+            <div class="form-floating">
+              <input type="text" class="form-control" id="origin" placeholder="Điểm đi" formControlName="origin">
+              <label for="origin">Điểm đi</label>
+            </div>
+            <div class="invalid-feedback" *ngIf="searchForm.get('origin')?.invalid && searchForm.get('origin')?.touched">
+              Vui lòng chọn điểm đi
+            </div>
+          </div>
+          
+          <div class="col-md-2 d-flex align-items-center justify-content-center my-2 my-md-0">
+            <button type="button" class="btn btn-outline-secondary rounded-circle" (click)="swapLocations()">
+              <i class="bi bi-arrow-left-right"></i>
+            </button>
+          </div>
+          
+          <div class="col-md-5">
+            <div class="form-floating">
+              <input type="text" class="form-control" id="destination" placeholder="Điểm đến" formControlName="destination">
+              <label for="destination">Điểm đến</label>
+            </div>
+            <div class="invalid-feedback" *ngIf="searchForm.get('destination')?.invalid && searchForm.get('destination')?.touched">
+              Vui lòng chọn điểm đến
+            </div>
+          </div>
+        </div>
+        
+        <!-- Dates -->
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <div class="form-floating">
+              <input 
+                type="date" 
+                class="form-control" 
+                id="departDate" 
+                formControlName="departDate"
+                [min]="getTodayString()"
+              >
+              <label for="departDate">Ngày đi</label>
+            </div>
+            <div class="invalid-feedback" *ngIf="searchForm.get('departDate')?.invalid && searchForm.get('departDate')?.touched">
+              <span *ngIf="searchForm.get('departDate')?.errors?.['required']">Vui lòng chọn ngày đi</span>
+              <span *ngIf="searchForm.get('departDate')?.errors?.['pastDate']">Ngày đi không thể là ngày trong quá khứ</span>
+            </div>
+          </div>
+          
+          <div class="col-md-6" *ngIf="isRoundTrip">
+            <div class="form-floating">
+              <input 
+                type="date" 
+                class="form-control" 
+                id="returnDate" 
+                formControlName="returnDate"
+                [min]="searchForm.get('departDate')?.value || getTodayString()"
+              >
+              <label for="returnDate">Ngày về</label>
+            </div>
+            <div class="invalid-feedback" *ngIf="searchForm.get('returnDate')?.invalid && searchForm.get('returnDate')?.touched">
+              <span *ngIf="searchForm.get('returnDate')?.errors?.['required']">Vui lòng chọn ngày về</span>
+              <span *ngIf="searchForm.get('returnDate')?.errors?.['invalidReturnDate']">Ngày về không thể sớm hơn ngày đi</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Passengers & Cabin Class -->
+        <div class="row mb-4">
+          <div class="col-md-6" formGroupName="passengers">
+            <div class="row">
+              <div class="col-4">
+                <div class="form-floating">
+                  <input type="number" class="form-control" id="adults" min="1" max="9" formControlName="adults">
+                  <label for="adults">Người lớn</label>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-floating">
+                  <input type="number" class="form-control" id="children" min="0" max="9" formControlName="children">
+                  <label for="children">Trẻ em</label>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-floating">
+                  <input type="number" class="form-control" id="infants" min="0" max="9" formControlName="infants">
+                  <label for="infants">Em bé</label>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="form-floating">
+              <select class="form-select" id="cabinClass" formControlName="cabinClass">
+                <option value="economy">Phổ thông</option>
+                <option value="premiumEconomy">Phổ thông đặc biệt</option>
+                <option value="business">Thương gia</option>
+                <option value="first">Hạng nhất</option>
+              </select>
+              <label for="cabinClass">Hạng ghế</label>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Submit Button -->
+        <div class="d-grid">
+          <button type="submit" class="btn btn-primary btn-lg" [disabled]="searchForm.invalid">
+            <i class="bi bi-search me-2"></i>Tìm chuyến bay
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Popular Destinations -->
+  <div class="mt-5">
+    <h3 class="mb-4 text-center">Điểm đến phổ biến</h3>
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-3" *ngFor="let destination of popularDestinations">
+        <div class="card h-100 shadow hover-card">
+          <img [src]="destination.image" class="card-img-top" [alt]="destination.name">
+          <div class="card-body">
+            <h5 class="card-title">{{destination.name}} ({{destination.code}})</h5>
+            <p class="card-text">{{destination.description}}</p>
+            <a [routerLink]="['/flight-search']" [queryParams]="{destination: destination.code}" class="btn btn-outline-primary">Tìm chuyến bay</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

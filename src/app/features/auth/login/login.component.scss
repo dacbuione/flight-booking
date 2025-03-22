@@ -1,0 +1,27 @@
+.form-floating {
+  margin-bottom: 1.5rem;
+}
+
+.btn {
+  padding: 0.75rem 1rem;
+}
+
+.card {
+  border: none;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  padding: 1.5rem;
+}
+
+hr {
+  color: rgba(0, 0, 0, 0.1);
+}
+
+.form-check-input:checked {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+} 

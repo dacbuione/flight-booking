@@ -1,0 +1,352 @@
+// Hero banner
+.hero-banner {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  height: 500px;
+  display: flex;
+  align-items: center;
+  margin-bottom: -80px;
+  
+  .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7));
+  }
+  
+  .hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+}
+
+// Search form
+.search-section {
+  position: relative;
+  z-index: 10;
+  
+  .search-form-wrapper {
+    margin-bottom: 30px;
+  }
+  
+  .search-form-card {
+    border-radius: 10px;
+  }
+  
+  .form-label {
+    font-weight: 500;
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+  }
+  
+  .form-control, .form-select {
+    border-radius: 4px;
+    font-size: 0.95rem;
+    
+    &:focus {
+      box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+    }
+  }
+  
+  .input-group-text {
+    background-color: #f8f9fa;
+  }
+  
+  .search-btn {
+    padding: 0.6rem 1rem;
+    font-weight: 500;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+
+// Section styling
+.section-header {
+  .section-title {
+    font-weight: 700;
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .section-subtitle {
+    color: #6c757d;
+    font-size: 1.1rem;
+  }
+  
+  .divider {
+    height: 3px;
+    width: 60px;
+    background-color: #0d6efd;
+    margin-top: 15px;
+  }
+}
+
+// Destination card styling
+.destination-card {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    
+    .destination-image {
+      transform: scale(1.1);
+    }
+  }
+  
+  .destination-image-container {
+    position: relative;
+    height: 250px;
+    overflow: hidden;
+  }
+  
+  .destination-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  
+  .destination-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+    color: white;
+    
+    .destination-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    
+    .destination-hotels {
+      font-size: 0.9rem;
+      opacity: 0.8;
+      margin-bottom: 0;
+    }
+  }
+}
+
+// Hotel card styling
+.hotel-card {
+  border-radius: 10px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  background: white;
+  cursor: pointer;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  
+  &:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15) !important;
+    
+    .hotel-image {
+      transform: scale(1.05);
+    }
+  }
+  
+  .hotel-image-container {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+  }
+  
+  .hotel-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  
+  .hotel-price {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    
+    .small {
+      font-size: 0.7rem;
+      font-weight: normal;
+      opacity: 0.8;
+    }
+  }
+  
+  .hotel-rating {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background-color: rgba(255, 193, 7, 0.9);
+    color: #212529;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  
+  .hotel-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .hotel-name {
+    font-size: 1.3rem;
+    font-weight: 600;
+  }
+  
+  .hotel-location {
+    font-size: 0.9rem;
+    color: #6c757d;
+  }
+  
+  .hotel-description {
+    font-size: 0.9rem;
+    color: #495057;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .hotel-amenities {
+    .badge {
+      padding: 0.4em 0.6em;
+      font-weight: normal;
+      border-radius: 4px;
+    }
+  }
+  
+  .view-details {
+    color: #0d6efd;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// Empty state styling
+.empty-state {
+  padding: 50px 0;
+  
+  .empty-icon {
+    color: #adb5bd;
+  }
+}
+
+// Pagination styling
+.pagination {
+  .page-link {
+    border-radius: 4px;
+    margin: 0 3px;
+    color: #0d6efd;
+    border: 1px solid #dee2e6;
+    cursor: pointer;
+    
+    &:hover {
+      background-color: #e9ecef;
+      z-index: 2;
+    }
+  }
+  
+  .active .page-link {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: white;
+  }
+}
+
+// Newsletter section
+.newsletter-section {
+  .newsletter-card {
+    border-radius: 10px;
+    
+    h3 {
+      font-weight: 600;
+    }
+    
+    .input-group {
+      .form-control {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        padding: 0.6rem 1rem;
+      }
+      
+      .btn {
+        padding: 0.6rem 1.5rem;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 991.98px) {
+  .hero-banner {
+    height: 400px;
+    margin-bottom: -60px;
+    
+    .hero-content {
+      h1 {
+        font-size: 2.5rem;
+      }
+    }
+  }
+  
+  .destination-card .destination-image-container {
+    height: 200px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .hero-banner {
+    height: 350px;
+    margin-bottom: -40px;
+    
+    .hero-content {
+      h1 {
+        font-size: 2rem;
+      }
+    }
+  }
+  
+  .search-section .search-form-card {
+    padding: 15px !important;
+  }
+  
+  .section-header .section-title {
+    font-size: 1.75rem;
+  }
+  
+  .destination-card .destination-image-container {
+    height: 180px;
+  }
+} 

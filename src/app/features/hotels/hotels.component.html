@@ -1,0 +1,212 @@
+<div class="container">
+  <!-- Hero Banner Section -->
+  <div class="hero-banner" style="background-image: url('https://doflytravel.com/storage/uploads/logo/1-4235-hinh.webp')">
+    <div class="overlay"></div>
+    <div class="container">
+      <div class="hero-content text-center text-white">
+        <h1 class="display-4 fw-bold mb-3">Tìm khách sạn tốt nhất cho kỳ nghỉ của bạn</h1>
+        <p class="lead mb-4">Hơn 1000+ khách sạn trên toàn quốc với nhiều ưu đãi hấp dẫn</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Form Section -->
+  <div class="search-section">
+    <div class="container">
+      <div class="search-form-wrapper">
+        <div class="search-form-card p-4 shadow bg-white rounded">
+          <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label for="destination" class="form-label">Điểm đến</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+                  <input
+                    type="text"
+                    id="destination"
+                    class="form-control"
+                    placeholder="Nhập thành phố, địa điểm"
+                    formControlName="destination"
+                  />
+                </div>
+              </div>
+              <div class="col-md-2">
+                <label for="check-in" class="form-label">Nhận phòng</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-calendar-check"></i></span>
+                  <input
+                    type="date"
+                    id="check-in"
+                    class="form-control"
+                    formControlName="checkIn"
+                  />
+                </div>
+              </div>
+              <div class="col-md-2">
+                <label for="check-out" class="form-label">Trả phòng</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-calendar-x"></i></span>
+                  <input
+                    type="date"
+                    id="check-out"
+                    class="form-control"
+                    formControlName="checkOut"
+                  />
+                </div>
+              </div>
+              <div class="col-md-2">
+                <label for="guests" class="form-label">Số khách</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-people"></i></span>
+                  <select id="guests" class="form-select" formControlName="guests">
+                    <option [value]="1">1 người</option>
+                    <option [value]="2">2 người</option>
+                    <option [value]="3">3 người</option>
+                    <option [value]="4">4 người</option>
+                    <option [value]="5">5 người</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100 search-btn">
+                  <i class="bi bi-search me-2"></i>Tìm kiếm
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Popular Destinations Section -->
+  <section class="destinations-section py-5">
+    <div class="container">
+      <div class="section-header text-center mb-5">
+        <h2 class="section-title">Điểm đến phổ biến</h2>
+        <p class="section-subtitle">Khám phá các điểm đến du lịch hàng đầu tại Việt Nam</p>
+        <div class="divider mx-auto"></div>
+      </div>
+
+      <div *ngIf="isDestinationsLoading" class="text-center py-5">
+        <app-loading message="Đang tải điểm đến..."></app-loading>
+      </div>
+
+      <div *ngIf="!isDestinationsLoading" class="row g-4">
+        <div *ngFor="let destination of popularDestinations" class="col-lg-3 col-md-6">
+          <div class="destination-card" (click)="setDestination(destination.name)">
+            <div class="destination-image-container">
+              <img [src]="destination.image" [alt]="destination.name" class="destination-image">
+              <div class="destination-overlay">
+                <h3 class="destination-title">{{ destination.name }}</h3>
+                <p class="destination-hotels">{{ destination.hotels }} khách sạn</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hotels Section -->
+  <section class="hotels-section py-5 bg-light">
+    <div class="container">
+      <div class="section-header d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2 class="section-title">Khách sạn nổi bật</h2>
+          <p class="section-subtitle">Tìm nơi lưu trú tốt nhất cho kỳ nghỉ của bạn</p>
+        </div>
+        <button class="btn btn-outline-primary" (click)="resetFilters()">
+          <i class="bi bi-arrow-repeat me-2"></i>Xóa bộ lọc
+        </button>
+      </div>
+
+      <div *ngIf="isLoading" class="text-center py-5">
+        <app-loading message="Đang tải khách sạn..."></app-loading>
+      </div>
+
+      <div *ngIf="!isLoading && filteredHotels.length === 0" class="empty-state text-center py-5">
+        <div class="empty-icon mb-3">
+          <i class="bi bi-search" style="font-size: 3rem;"></i>
+        </div>
+        <h3>Không tìm thấy khách sạn</h3>
+        <p class="text-muted">Vui lòng thử lại với các tiêu chí tìm kiếm khác</p>
+        <button class="btn btn-outline-primary mt-3" (click)="resetFilters()">
+          <i class="bi bi-arrow-repeat me-2"></i>Đặt lại bộ lọc
+        </button>
+      </div>
+
+      <div *ngIf="!isLoading && filteredHotels.length > 0" class="row g-4">
+        <div *ngFor="let hotel of paginatedHotels" class="col-lg-4 col-md-6">
+          <div class="hotel-card shadow-sm" (click)="navigateToHotel(hotel.id)">
+            <div class="hotel-image-container">
+              <img [src]="hotel.images[0]" [alt]="hotel.name" class="hotel-image">
+              <div class="hotel-price">{{ formatCurrency(hotel.price) }}<span class="small">/đêm</span></div>
+              <div class="hotel-rating">
+                <i class="bi bi-star-fill"></i> {{ hotel.rating }}
+              </div>
+            </div>
+            <div class="hotel-info p-3">
+              <h3 class="hotel-name mb-2">{{ hotel.name }}</h3>
+              <p class="hotel-location mb-2">
+                <i class="bi bi-geo-alt"></i> {{ hotel.location }}
+              </p>
+              <p class="hotel-description mb-3">{{ hotel.description }}</p>
+              <div class="hotel-amenities">
+                <span *ngFor="let amenity of hotel.amenities.slice(0, 3)" class="badge bg-light text-dark me-2 mb-2">
+                  <i class="bi bi-check-circle-fill me-1 text-success"></i>{{ amenity }}
+                </span>
+                <span *ngIf="hotel.amenities.length > 3" class="badge bg-light text-primary mb-2">
+                  +{{ hotel.amenities.length - 3 }} tiện ích khác
+                </span>
+              </div>
+              <div class="mt-3 d-flex justify-content-between align-items-center">
+                <button class="btn btn-sm btn-outline-primary">Đặt ngay</button>
+                <a href="javascript:void(0)" class="view-details">Chi tiết <i class="bi bi-arrow-right"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div *ngIf="!isLoading && totalPages > 1" class="pagination-container mt-5">
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-center">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <a class="page-link" (click)="changePage(currentPage - 1)" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            <li class="page-item" *ngFor="let page of getPagesArray()" [class.active]="page === currentPage">
+              <a class="page-link" (click)="changePage(page)">{{ page }}</a>
+            </li>
+            <li class="page-item" [class.disabled]="currentPage === totalPages">
+              <a class="page-link" (click)="changePage(currentPage + 1)" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter Section -->
+  <section class="newsletter-section py-5">
+    <div class="container">
+      <div class="newsletter-card text-center p-5 shadow-sm bg-white rounded">
+        <h3 class="mb-3">Đăng ký nhận thông tin ưu đãi</h3>
+        <p class="mb-4">Nhận ngay ưu đãi đặc biệt và thông tin khuyến mãi mới nhất từ chúng tôi</p>
+        <div class="row justify-content-center">
+          <div class="col-md-6">
+            <div class="input-group mb-3">
+              <input type="email" class="form-control" placeholder="Địa chỉ email của bạn">
+              <button class="btn btn-primary" type="button">Đăng ký</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div> 

@@ -1,0 +1,85 @@
+<div class="container py-5">
+  <div class="row">
+    <div class="col-12 mb-4">
+      <h1 class="mb-3">Thông tin tài khoản</h1>
+      <p class="text-muted">Quản lý thông tin cá nhân và lịch sử đặt vé của bạn</p>
+    </div>
+  </div>
+  
+  <div class="row g-4">
+    <!-- Sidebar -->
+    <div class="col-md-4">
+      <div class="card shadow">
+        <div class="card-body text-center p-4">
+          <img 
+            *ngIf="(currentUser$ | async)?.photoUrl; else defaultAvatar" 
+            [src]="(currentUser$ | async)?.photoUrl" 
+            class="rounded-circle profile-image mb-3" 
+            alt="Profile image"
+          >
+          <ng-template #defaultAvatar>
+            <div class="profile-image-placeholder mb-3">
+              <i class="bi bi-person-fill"></i>
+            </div>
+          </ng-template>
+          
+          <h4 class="mb-1">{{ (currentUser$ | async)?.firstName }} {{ (currentUser$ | async)?.lastName }}</h4>
+          <p class="text-muted">{{ (currentUser$ | async)?.email }}</p>
+          
+          <div class="list-group list-group-flush mt-4">
+            <a href="#profile" class="list-group-item list-group-item-action active">
+              <i class="bi bi-person me-2"></i>Thông tin cá nhân
+            </a>
+            <a href="#bookings" class="list-group-item list-group-item-action">
+              <i class="bi bi-ticket-perforated me-2"></i>Lịch sử đặt vé
+            </a>
+            <a href="#preferences" class="list-group-item list-group-item-action">
+              <i class="bi bi-sliders me-2"></i>Tùy chọn
+            </a>
+            <a href="#security" class="list-group-item list-group-item-action">
+              <i class="bi bi-shield-lock me-2"></i>Bảo mật
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="col-md-8">
+      <div class="card shadow" id="profile">
+        <div class="card-header bg-white">
+          <h5 class="mb-0">Thông tin cá nhân</h5>
+        </div>
+        <div class="card-body p-4">
+          <div class="alert alert-info">
+            <p class="mb-0">Chức năng cập nhật thông tin cá nhân đang được phát triển. Vui lòng quay lại sau!</p>
+          </div>
+          
+          <dl class="row mb-0">
+            <dt class="col-sm-4">Họ và tên:</dt>
+            <dd class="col-sm-8">{{ (currentUser$ | async)?.firstName }} {{ (currentUser$ | async)?.lastName }}</dd>
+            
+            <dt class="col-sm-4">Email:</dt>
+            <dd class="col-sm-8">{{ (currentUser$ | async)?.email }}</dd>
+            <dt class="col-sm-4">Số điện thoại:</dt>
+            <dd class="col-sm-8">{{ (currentUser$ | async)?.phoneNumber || 'Chưa cập nhật' }}</dd>
+            
+            <dt class="col-sm-4">Ngày tham gia:</dt>
+            <dd class="col-sm-8">{{ (currentUser$ | async)?.createdAt | date:'dd/MM/yyyy' }}</dd>
+          </dl>
+        </div>
+      </div>
+      
+      <div class="card shadow mt-4" id="bookings">
+        <div class="card-header bg-white">
+          <h5 class="mb-0">Lịch sử đặt vé</h5>
+        </div>
+        <div class="card-body p-4">
+          <div class="alert alert-info">
+            <p class="mb-0">Bạn chưa có chuyến bay nào được đặt. Hãy <a routerLink="/flight-search">tìm chuyến bay</a> ngay!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

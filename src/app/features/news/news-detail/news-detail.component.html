@@ -1,0 +1,154 @@
+<div class="container-fluid p-0">
+  <!-- Loading Spinner -->
+  <app-loading *ngIf="isLoading"></app-loading>
+
+  <div *ngIf="!isLoading && article">
+    <!-- Article Header Image -->
+    <div class="article-hero" [style.background-image]="'url(' + article.image + ')'">
+      <div class="overlay"></div>
+      <div class="container">
+        <div class="article-hero-content">
+          <span class="badge bg-primary mb-3">{{article.category}}</span>
+          <h1 class="article-title mb-3">{{article.title}}</h1>
+          <div class="article-meta">
+            <span class="me-3"><i class="bi bi-person me-1"></i> {{article.author}}</span>
+            <span><i class="bi bi-calendar3 me-1"></i> {{article.date}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Article Content -->
+    <div class="container py-5">
+      <div class="row">
+        <div class="col-lg-8">
+          <!-- Summary -->
+          <div class="article-summary mb-4">
+            <p class="lead">{{article.summary}}</p>
+            <hr>
+          </div>
+
+          <!-- Content -->
+          <div class="article-content">
+            <p *ngFor="let paragraph of formatContentWithParagraphs(article.content)" class="mb-4">
+              {{paragraph}}
+            </p>
+          </div>
+
+          <!-- Tags -->
+          <div class="article-tags mt-4">
+            <span class="me-2">Tags:</span>
+            <a *ngFor="let tag of article.tags" class="badge bg-light text-dark me-2 text-decoration-none">
+              #{{tag}}
+            </a>
+          </div>
+
+          <!-- Share -->
+          <div class="article-share mt-5 pt-4 border-top">
+            <h5 class="mb-3">Chia sẻ bài viết</h5>
+            <div class="d-flex">
+              <a href="#" class="btn btn-sm btn-outline-primary me-2">
+                <i class="bi bi-facebook"></i> Facebook
+              </a>
+              <a href="#" class="btn btn-sm btn-outline-info me-2">
+                <i class="bi bi-twitter"></i> Twitter
+              </a>
+              <a href="#" class="btn btn-sm btn-outline-success">
+                <i class="bi bi-envelope"></i> Email
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4 mt-5 mt-lg-0">
+          <!-- Related Articles -->
+          <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body">
+              <h5 class="card-title fw-bold mb-3">Bài viết liên quan</h5>
+              
+              <div *ngIf="relatedArticles.length === 0" class="text-center py-4">
+                <p class="text-muted">Không có bài viết liên quan.</p>
+              </div>
+              
+              <div *ngFor="let related of relatedArticles" class="related-article mb-3">
+                <div class="row g-0">
+                  <div class="col-4">
+                    <img [src]="related.image" class="img-fluid rounded related-img" alt="Related article">
+                  </div>
+                  <div class="col-8 ps-3">
+                    <h6 class="mb-1">
+                      <a [routerLink]="['/news', related.id]" class="text-decoration-none text-dark">{{related.title}}</a>
+                    </h6>
+                    <small class="text-muted">{{related.date}}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Categories -->
+          <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body">
+              <h5 class="card-title fw-bold mb-3">Danh mục</h5>
+              <div class="list-group list-group-flush">
+                <a routerLink="/news" [queryParams]="{category: 'all'}" class="list-group-item list-group-item-action border-0 px-0">
+                  Tất cả
+                </a>
+                <a routerLink="/news" [queryParams]="{category: 'Hãng hàng không'}" class="list-group-item list-group-item-action border-0 px-0">
+                  Hãng hàng không
+                </a>
+                <a routerLink="/news" [queryParams]="{category: 'Du lịch'}" class="list-group-item list-group-item-action border-0 px-0">
+                  Du lịch
+                </a>
+                <a routerLink="/news" [queryParams]="{category: 'Quy định bay'}" class="list-group-item list-group-item-action border-0 px-0">
+                  Quy định bay
+                </a>
+                <a routerLink="/news" [queryParams]="{category: 'Khuyến mãi'}" class="list-group-item list-group-item-action border-0 px-0">
+                  Khuyến mãi
+                </a>
+                <a routerLink="/news" [queryParams]="{category: 'Hạ tầng hàng không'}" class="list-group-item list-group-item-action border-0 px-0">
+                  Hạ tầng hàng không
+                </a>
+                <a routerLink="/news" [queryParams]="{category: 'Công nghệ'}" class="list-group-item list-group-item-action border-0 px-0">
+                  Công nghệ
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Newsletter Signup -->
+          <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body">
+              <h5 class="card-title fw-bold mb-3">Đăng ký nhận tin</h5>
+              <p class="card-text text-muted small mb-3">Nhận thông báo về tin tức mới nhất và khuyến mãi đặc biệt.</p>
+              <div class="input-group mb-3">
+                <input type="email" class="form-control" placeholder="Email của bạn">
+                <button class="btn btn-primary" type="button">Đăng ký</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Back to Articles -->
+    <div class="container mb-5">
+      <a routerLink="/news" class="btn btn-outline-primary">
+        <i class="bi bi-arrow-left me-2"></i> Quay lại danh sách tin tức
+      </a>
+    </div>
+  </div>
+
+  <!-- Article Not Found -->
+  <div class="container py-5 text-center" *ngIf="!isLoading && !article">
+    <div class="not-found my-5">
+      <i class="bi bi-exclamation-circle display-1 text-muted mb-4"></i>
+      <h2>Không tìm thấy bài viết</h2>
+      <p class="lead text-muted mb-4">Bài viết bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.</p>
+      <a routerLink="/news" class="btn btn-primary">
+        Quay lại trang tin tức
+      </a>
+    </div>
+  </div>
+</div> 

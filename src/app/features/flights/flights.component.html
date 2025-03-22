@@ -1,0 +1,238 @@
+<div class="container">
+  <!-- Hero Banner Section -->
+  <div class="hero-banner" style="background-image: url('https://doflytravel.com/storage/uploads/logo/1-3844-hinh.webp')">
+    <div class="overlay"></div>
+    <div class="container">
+      <div class="hero-content text-center text-white">
+        <h1 class="display-4 fw-bold mb-3">Tìm chuyến bay phù hợp nhất cho bạn</h1>
+        <p class="lead mb-4">Hàng ngàn chuyến bay với nhiều hãng hàng không hàng đầu thế giới</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Form Section -->
+  <div class="search-section">
+    <div class="container">
+      <div class="search-form-wrapper">
+        <div class="search-form-card p-4 shadow bg-white rounded">
+          <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
+            <div class="row g-3">
+              <div class="col-md-3">
+                <label for="from" class="form-label">Điểm đi</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+                  <input
+                    type="text"
+                    id="from"
+                    class="form-control"
+                    placeholder="Thành phố hoặc sân bay"
+                    formControlName="from"
+                  />
+                </div>
+              </div>
+              <div class="col-md-3">
+                <label for="to" class="form-label">Điểm đến</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+                  <input
+                    type="text"
+                    id="to"
+                    class="form-control"
+                    placeholder="Thành phố hoặc sân bay"
+                    formControlName="to"
+                  />
+                </div>
+              </div>
+              <div class="col-md-2">
+                <label for="departure" class="form-label">Ngày đi</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-calendar-check"></i></span>
+                  <input
+                    type="date"
+                    id="departure"
+                    class="form-control"
+                    formControlName="departure"
+                  />
+                </div>
+              </div>
+              <div class="col-md-2">
+                <label for="passengers" class="form-label">Hành khách</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-people"></i></span>
+                  <select id="passengers" class="form-select" formControlName="passengers">
+                    <option [value]="1">1 người</option>
+                    <option [value]="2">2 người</option>
+                    <option [value]="3">3 người</option>
+                    <option [value]="4">4 người</option>
+                    <option [value]="5">5 người</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100 search-btn">
+                  <i class="bi bi-search me-2"></i>Tìm kiếm
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Flights Section -->
+  <section class="flights-section py-5 bg-light">
+    <div class="container">
+      <div class="section-header d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2 class="section-title">Chuyến bay khả dụng</h2>
+          <p class="section-subtitle">Tìm chuyến bay tốt nhất cho hành trình của bạn</p>
+        </div>
+        <button class="btn btn-outline-primary" (click)="resetFilters()">
+          <i class="bi bi-arrow-repeat me-2"></i>Xóa bộ lọc
+        </button>
+      </div>
+
+      <div *ngIf="isLoading" class="text-center py-5">
+        <app-loading message="Đang tải chuyến bay..."></app-loading>
+      </div>
+
+      <div *ngIf="!isLoading && filteredFlights.length === 0" class="empty-state text-center py-5">
+        <div class="empty-icon mb-3">
+          <i class="bi bi-search" style="font-size: 3rem;"></i>
+        </div>
+        <h3>Không tìm thấy chuyến bay</h3>
+        <p class="text-muted">Vui lòng thử lại với các tiêu chí tìm kiếm khác</p>
+        <button class="btn btn-outline-primary mt-3" (click)="resetFilters()">
+          <i class="bi bi-arrow-repeat me-2"></i>Đặt lại bộ lọc
+        </button>
+      </div>
+
+      <div *ngIf="!isLoading && hasSearched" class="row">
+        <div class="col-lg-3">
+          <!-- Filters Section -->
+          <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+              <h5 class="mb-0">Bộ lọc</h5>
+            </div>
+            <div class="card-body">
+              <!-- Price Range Filter -->
+              <div class="filter-section mb-4">
+                <h6 class="filter-title">Khoảng giá</h6>
+                <div class="price-slider">
+                  <div class="d-flex justify-content-between mb-2">
+                    <span>{{formatCurrency(priceRange.min)}}</span>
+                    <span>{{formatCurrency(priceRange.max)}}</span>
+                  </div>
+                  <!-- Price range implementation would go here -->
+                </div>
+              </div>
+
+              <!-- Airlines Filter -->
+              <div class="filter-section mb-4">
+                <h6 class="filter-title">Hãng hàng không</h6>
+                <div class="airline-list">
+                  <div *ngFor="let airline of airlines" class="form-check">
+                    <input 
+                      class="form-check-input" 
+                      type="checkbox" 
+                      [id]="'airline-' + airline.name"
+                      [checked]="selectedAirlines.includes(airline.name)"
+                      (change)="toggleAirlineFilter(airline.name)"
+                    >
+                    <label class="form-check-label d-flex justify-content-between" [for]="'airline-' + airline.name">
+                      <span>{{airline.name}}</span>
+                      <span class="text-muted small">({{airline.count}})</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Sort Options -->
+              <div class="filter-section">
+                <h6 class="filter-title">Sắp xếp theo</h6>
+                <select class="form-select" (change)="onSortChange($event)">
+                  <option *ngFor="let option of sortOptions" [value]="option.value" [selected]="selectedSort === option.value">
+                    {{option.label}}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-9">
+          <!-- Flight List -->
+          <div *ngFor="let flight of filteredFlights" class="card flight-card shadow-sm mb-3">
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col-md-3">
+                  <div class="airline-info text-center">
+                    <h5 class="airline-name mb-1">{{flight.airline}}</h5>
+                    <p class="flight-number mb-1">{{flight.flightNumber}}</p>
+                    <span class="badge rounded-pill" [ngClass]="{'bg-success': flight.type === 'Thẳng', 'bg-warning': flight.type !== 'Thẳng'}">
+                      {{flight.type}}
+                    </span>
+                  </div>
+                </div>
+                <div class="col-md-5">
+                  <div class="flight-route d-flex align-items-center">
+                    <div class="departure text-center">
+                      <h5 class="mb-0">{{flight.from}}</h5>
+                      <p class="mb-0">{{flight.departureTime}}</p>
+                    </div>
+                    <div class="flight-duration flex-grow-1 text-center mx-3">
+                      <div class="duration-line position-relative">
+                        <i class="bi bi-circle-fill departure-point"></i>
+                        <i class="bi bi-circle-fill arrival-point"></i>
+                      </div>
+                      <small class="text-muted">{{flight.duration}}</small>
+                      <p *ngIf="flight.stops > 0" class="stops mb-0">
+                        {{flight.stops}} điểm dừng
+                      </p>
+                    </div>
+                    <div class="arrival text-center">
+                      <h5 class="mb-0">{{flight.to}}</h5>
+                      <p class="mb-0">{{flight.arrivalTime}}</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="flight-info text-center">
+                    <p class="seats mb-1">
+                      <i class="bi bi-person"></i> {{flight.availableSeats}} chỗ
+                    </p>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="price-action text-center">
+                    <h4 class="price mb-2">{{formatCurrency(flight.price)}}</h4>
+                    <button class="btn btn-primary btn-sm">Chọn</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter Section -->
+  <section class="newsletter-section py-5">
+    <div class="container">
+      <div class="newsletter-card text-center p-5 shadow-sm bg-white rounded">
+        <h3 class="mb-3">Đăng ký nhận thông tin ưu đãi</h3>
+        <p class="mb-4">Nhận ngay ưu đãi đặc biệt và thông tin khuyến mãi mới nhất từ chúng tôi</p>
+        <div class="row justify-content-center">
+          <div class="col-md-6">
+            <div class="input-group mb-3">
+              <input type="email" class="form-control" placeholder="Địa chỉ email của bạn">
+              <button class="btn btn-primary" type="button">Đăng ký</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div> 

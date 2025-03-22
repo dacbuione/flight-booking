@@ -1,0 +1,456 @@
+<div class="flight-search-section">
+  <div class="banner-background">
+    <div class="swiper banner-swiper">
+      <div class="swiper-wrapper">
+        <div
+          class="swiper-slide bg-dark position-relative"
+          *ngFor="let bg of backgrounds; let i = index"
+        >
+          <div class="bg-overlay"></div>
+          <img class="banner-img" [src]="bg" alt="Home slide" loading="lazy" />
+        </div>
+      </div>
+      <div class="swiper-pagination dynamic-pagination"></div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="flight-search-container">
+      <div class="search-header">
+        <div class="search-tabs">
+          <div
+            class="tab-item"
+            [class.active]="searchForm.get('tripType')?.value === 'roundtrip'"
+            (click)="setTripType('roundtrip')"
+          >
+            <mat-icon>sync</mat-icon>
+            <span>Khứ hồi</span>
+          </div>
+          <div
+            class="tab-item"
+            [class.active]="searchForm.get('tripType')?.value === 'oneway'"
+            (click)="setTripType('oneway')"
+          >
+            <mat-icon>trending_flat</mat-icon>
+            <span>Một chiều</span>
+          </div>
+          <div class="tab-item promo-tab" (click)="togglePromoCodeField()">
+            <mat-icon>local_offer</mat-icon>
+            <span>Mã khuyến mãi</span>
+          </div>
+        </div>
+
+        <div class="preference-selectors">
+          <div class="selector-item" (click)="toggleSeatClassDropdown()">
+            <mat-icon>airline_seat_recline_normal</mat-icon>
+            <span>{{ getSeatClassDisplay() }}</span>
+            <mat-icon class="dropdown-icon">keyboard_arrow_down</mat-icon>
+          </div>
+
+          <div
+            class="selector-item passenger-btn"
+            (click)="togglePassengerDropdown($event)"
+          >
+            <mat-icon>person</mat-icon>
+            <span>{{ getPassengerSummary() }}</span>
+            <mat-icon class="dropdown-icon">keyboard_arrow_down</mat-icon>
+          </div>
+        </div>
+      </div>
+
+      <form [formGroup]="searchForm" (ngSubmit)="searchFlights()">
+        <div class="search-form-content">
+          <!-- Promo code field -->
+          <div class="promo-code-field" *ngIf="isPromoCodeVisible">
+            <div class="input-field promo-input">
+              <mat-icon>redeem</mat-icon>
+              <div class="input-wrapper">
+                <label for="promoCode">Mã khuyến mãi</label>
+                <input
+                  type="text"
+                  id="promoCode"
+                  formControlName="promoCode"
+                  placeholder="Nhập mã giảm giá (nếu có)"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="search-main-content">
+            <!-- Route selection -->
+            <div class="route-selection">
+              <div
+                class="input-field origin-field"
+                (click)="openLocationSelector('origin')"
+              >
+                <mat-icon>flight_takeoff</mat-icon>
+                <div class="input-wrapper">
+                  <label for="origin">Điểm đi</label>
+                  <input
+                    type="text"
+                    id="origin"
+                    formControlName="origin"
+                    placeholder="Chọn điểm đi"
+                    [value]="getAirportDisplayName('origin')"
+                    readonly
+                  />
+                </div>
+              </div>
+
+              <button
+                type="button"
+                class="swap-button"
+                (click)="swapLocations()"
+              >
+                <mat-icon>swap_horiz</mat-icon>
+              </button>
+
+              <div
+                class="input-field destination-field"
+                (click)="openLocationSelector('destination')"
+              >
+                <mat-icon>flight_land</mat-icon>
+                <div class="input-wrapper">
+                  <label for="destination">Điểm đến</label>
+                  <input
+                    type="text"
+                    id="destination"
+                    formControlName="destination"
+                    placeholder="Chọn điểm đến"
+                    [value]="getAirportDisplayName('destination')"
+                    readonly
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Date selection -->
+            <div class="date-selection">
+              <div class="input-field depart-field">
+                <mat-icon>event</mat-icon>
+                <div class="input-wrapper">
+                  <label for="departDate">Ngày đi</label>
+                  <input
+                    type="text"
+                    id="departDate"
+                    [matDatepicker]="departPicker"
+                    formControlName="departDate"
+                    placeholder="DD/MM/YYYY"
+                    readonly
+                    (click)="departPicker.open()"
+                    [min]="today"
+                  />
+                  <mat-datepicker #departPicker></mat-datepicker>
+                </div>
+              </div>
+
+              <div
+                class="input-field return-field"
+                [class.disabled]="
+                  searchForm.get('tripType')?.value === 'oneway'
+                "
+              >
+                <mat-icon>event</mat-icon>
+                <div class="input-wrapper">
+                  <label for="returnDate">Ngày về</label>
+                  <input
+                    type="text"
+                    id="returnDate"
+                    [matDatepicker]="returnPicker"
+                    formControlName="returnDate"
+                    placeholder="DD/MM/YYYY"
+                    readonly
+                    (click)="returnPicker.open()"
+                    [min]="searchForm.get('departDate')?.value || today"
+                  />
+                  <mat-datepicker #returnPicker></mat-datepicker>
+                </div>
+              </div>
+            </div>
+
+            <!-- Search button -->
+            <div class="search-button-container">
+              <div
+                class="flexible-dates"
+                *ngIf="searchForm.get('tripType')?.value === 'roundtrip'"
+              >
+                <mat-checkbox formControlName="flexibleDates"
+                  >Tìm giá tốt nhất ±3 ngày</mat-checkbox
+                >
+              </div>
+              <button
+                type="submit"
+                class="search-button"
+                [disabled]="searchForm.invalid"
+              >
+                <span class="search-icon">
+                  <mat-icon>search</mat-icon>
+                </span>
+                <span class="button-text">Tìm chuyến bay</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <!-- Popular destinations -->
+      <div class="popular-destinations">
+        <div class="popular-label">Điểm đến phổ biến:</div>
+        <div class="destination-tags">
+          <a
+            class="destination-tag"
+            href="#"
+            (click)="setQuickSearch('HAN', 'SGN', $event)"
+            >Hà Nội - Hồ Chí Minh</a
+          >
+          <a
+            class="destination-tag"
+            href="#"
+            (click)="setQuickSearch('SGN', 'DAD', $event)"
+            >Hồ Chí Minh - Đà Nẵng</a
+          >
+          <a
+            class="destination-tag"
+            href="#"
+            (click)="setQuickSearch('HAN', 'PQC', $event)"
+            >Hà Nội - Phú Quốc</a
+          >
+          <a
+            class="destination-tag"
+            href="#"
+            (click)="setQuickSearch('SGN', 'HUI', $event)"
+            >Hồ Chí Minh - Huế</a
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Location Selector Modal -->
+<div
+  class="location-modal"
+  *ngIf="isLocationSelectorVisible"
+  (click)="closeLocationSelector()"
+>
+  <div class="location-dialog" (click)="$event.stopPropagation()">
+    <div class="location-header">
+      <h3>
+        {{
+          locationSelectorType === "origin" ? "Chọn điểm đi" : "Chọn điểm đến"
+        }}
+      </h3>
+      <button type="button" class="close-btn" (click)="closeLocationSelector()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <div class="location-search">
+      <div class="search-input-wrapper">
+        <mat-icon>search</mat-icon>
+        <input
+          type="text"
+          [(ngModel)]="locationSearchText"
+          placeholder="Tìm theo thành phố hoặc mã sân bay"
+          (input)="filterAirports()"
+          autofocus
+        />
+        <button
+          *ngIf="locationSearchText"
+          class="clear-search"
+          (click)="clearSearch()"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="location-tabs">
+      <div
+        class="location-tab"
+        [class.active]="activeLocationTab === 'popular'"
+        (click)="setLocationTab('popular')"
+      >
+        Phổ biến
+      </div>
+      <div
+        class="location-tab"
+        [class.active]="activeLocationTab === 'all'"
+        (click)="setLocationTab('all')"
+      >
+        Tất cả
+      </div>
+      <div
+        class="location-tab"
+        [class.active]="activeLocationTab === 'domestic'"
+        (click)="setLocationTab('domestic')"
+      >
+        Trong nước
+      </div>
+      <div
+        class="location-tab"
+        [class.active]="activeLocationTab === 'international'"
+        (click)="setLocationTab('international')"
+      >
+        Quốc tế
+      </div>
+    </div>
+
+    <div class="location-results">
+      <div class="no-results" *ngIf="filteredAirports.length === 0">
+        <mat-icon>search_off</mat-icon>
+        <p>Không tìm thấy kết quả nào</p>
+        <span>Vui lòng thử lại với từ khóa khác</span>
+      </div>
+
+      <div class="airport-list" *ngIf="filteredAirports.length > 0">
+        <div
+          class="airport-item"
+          *ngFor="let airport of filteredAirports"
+          (click)="selectAirport(airport.code)"
+        >
+          <div class="airport-code">{{ airport.code }}</div>
+          <div class="airport-details">
+            <div class="airport-city">{{ airport.city }}</div>
+            <div class="airport-name">{{ airport.name }}</div>
+          </div>
+          <div class="airport-country">{{ airport.country }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Dropdowns (moved outside of main container for proper positioning) -->
+<!-- Seat Class Dropdown -->
+<div
+  class="dropdown-menu seat-class-menu"
+  [class.show]="isSeatClassDropdownOpen"
+>
+  <div
+    class="dropdown-item"
+    *ngFor="let seatClass of seatClasses"
+    [class.active]="
+      searchForm.get('seatClass')?.value === seatClass.value
+    "
+    (click)="
+      selectSeatClass(seatClass.value); $event.stopPropagation()
+    "
+  >
+    {{ seatClass.display }}
+  </div>
+</div>
+
+<!-- Passenger Dropdown -->
+<div
+  class="dropdown-menu passenger-menu"
+  [class.show]="isPassengerDropdownOpen"
+>
+  <!-- Adults -->
+  <div class="passenger-item">
+    <div class="passenger-info">
+      <div class="passenger-type">Người lớn</div>
+      <div class="passenger-note">Từ 12 tuổi trở lên</div>
+    </div>
+    <div class="passenger-controls">
+      <button
+        type="button"
+        class="control-btn"
+        [disabled]="searchForm.get('adults')?.value <= 1"
+        (click)="
+          decreasePassenger('adults'); $event.stopPropagation()
+        "
+      >
+        <mat-icon>remove</mat-icon>
+      </button>
+      <span class="passenger-count">{{
+        searchForm.get("adults")?.value
+      }}</span>
+      <button
+        type="button"
+        class="control-btn"
+        [disabled]="searchForm.get('adults')?.value >= 9"
+        (click)="
+          increasePassenger('adults'); $event.stopPropagation()
+        "
+      >
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Children -->
+  <div class="passenger-item">
+    <div class="passenger-info">
+      <div class="passenger-type">Trẻ em</div>
+      <div class="passenger-note">Từ 2 đến dưới 12 tuổi</div>
+    </div>
+    <div class="passenger-controls">
+      <button
+        type="button"
+        class="control-btn"
+        [disabled]="searchForm.get('children')?.value <= 0"
+        (click)="
+          decreasePassenger('children'); $event.stopPropagation()
+        "
+      >
+        <mat-icon>remove</mat-icon>
+      </button>
+      <span class="passenger-count">{{
+        searchForm.get("children")?.value
+      }}</span>
+      <button
+        type="button"
+        class="control-btn"
+        [disabled]="
+          getTotalPassengers() >= 9 ||
+          searchForm.get('children')?.value >= 8
+        "
+        (click)="
+          increasePassenger('children'); $event.stopPropagation()
+        "
+      >
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Infants -->
+  <div class="passenger-item">
+    <div class="passenger-info">
+      <div class="passenger-type">Trẻ sơ sinh</div>
+      <div class="passenger-note">
+        Dưới 2 tuổi (ngồi cùng người lớn)
+      </div>
+    </div>
+    <div class="passenger-controls">
+      <button
+        type="button"
+        class="control-btn"
+        [disabled]="searchForm.get('infants')?.value <= 0"
+        (click)="
+          decreasePassenger('infants'); $event.stopPropagation()
+        "
+      >
+        <mat-icon>remove</mat-icon>
+      </button>
+      <span class="passenger-count">{{
+        searchForm.get("infants")?.value
+      }}</span>
+      <button
+        type="button"
+        class="control-btn"
+        [disabled]="
+          searchForm.get('infants')?.value >=
+            searchForm.get('adults')?.value ||
+          searchForm.get('infants')?.value >= 4
+        "
+        (click)="
+          increasePassenger('infants'); $event.stopPropagation()
+        "
+      >
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+  </div>
+</div>

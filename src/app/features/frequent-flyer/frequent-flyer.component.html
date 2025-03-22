@@ -1,0 +1,132 @@
+<div class="frequent-flyer-container">
+  <div class="content-container" *ngIf="!isLoading; else loadingTemplate">
+    <ng-container *ngIf="(frequentFlyer$ | async) as frequentFlyer; else notEnrolled">
+      <!-- Header with member information -->
+      <div class="member-header">
+        <div class="tier-badge" [ngClass]="frequentFlyer.tierLevel.toLowerCase()">
+          {{ getTierName(frequentFlyer.tierLevel) }}
+        </div>
+        <div class="member-info">
+          <h2>Thành viên: {{ frequentFlyer.membershipNumber }}</h2>
+          <p>Đã tham gia: {{ getFormattedDate(frequentFlyer.enrollmentDate) }}</p>
+          <p>Hạn hạng: {{ getFormattedDate(frequentFlyer.tierExpiryDate) }}</p>
+        </div>
+        <div class="points-display">
+          <h3>{{ frequentFlyer.points | number }}</h3>
+          <p>điểm thưởng</p>
+        </div>
+      </div>
+
+      <!-- Next tier progress -->
+      <div class="tier-progress" *ngIf="nextTier">
+        <h3>Tiến độ lên hạng {{ getTierName(nextTier) }}</h3>
+        <div class="progress-container">
+          <div class="progress-bar" [style.width.%]="tierProgress"></div>
+        </div>
+        <p>Còn {{ pointsToNextTier | number }} điểm để lên hạng</p>
+      </div>
+      <div class="tier-progress" *ngIf="!nextTier">
+        <h3>Chúc mừng! Bạn đã đạt hạng cao nhất</h3>
+        <div class="progress-container">
+          <div class="progress-bar" [style.width.%]="100"></div>
+        </div>
+      </div>
+
+      <!-- Benefits -->
+      <div class="benefits-section">
+        <h3>Ưu đãi của bạn</h3>
+        <div class="benefits-container">
+          <div class="benefit-card" *ngFor="let benefit of (benefits$ | async)">
+            <div class="icon">{{ benefit.icon }}</div>
+            <h4>{{ benefit.name }}</h4>
+            <p>{{ benefit.description }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity History -->
+      <div class="activity-section">
+        <h3>Lịch sử hoạt động</h3>
+        <div class="activity-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Ngày</th>
+                <th>Loại hoạt động</th>
+                <th>Mô tả</th>
+                <th>Điểm</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let activity of (activityHistory$ | async)">
+                <td>{{ getFormattedDate(activity.date) }}</td>
+                <td>{{ activity.activityType }}</td>
+                <td>{{ activity.description }}</td>
+                <td [ngClass]="{'positive': activity.pointsEarned > 0, 'negative': activity.pointsEarned < 0}">
+                  {{ activity.pointsEarned > 0 ? '+' : '' }}{{ activity.pointsEarned | number }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" *ngIf="totalActivities > pageSize">
+          <button 
+            [disabled]="currentPage === 1"
+            (click)="changePage(currentPage - 1)"
+          >
+            &lt;
+          </button>
+          <span>{{ currentPage }}</span>
+          <button 
+            [disabled]="currentPage * pageSize >= totalActivities"
+            (click)="changePage(currentPage + 1)"
+          >
+            &gt;
+          </button>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Not enrolled template -->
+    <ng-template #notEnrolled>
+      <div class="not-enrolled" *ngIf="!error">
+        <h2>Trở thành Thành viên Thân thiết</h2>
+        <p>Tham gia chương trình khách hàng thân thiết để tích điểm và nhận nhiều ưu đãi đặc biệt với mỗi chuyến bay</p>
+        <div class="benefits-preview">
+          <div class="benefit-card">
+            <div class="icon">🎫</div>
+            <h4>Tích điểm trên mỗi chuyến bay</h4>
+          </div>
+          <div class="benefit-card">
+            <div class="icon">🎁</div>
+            <h4>Đổi điểm lấy vé miễn phí</h4>
+          </div>
+          <div class="benefit-card">
+            <div class="icon">⬆️</div>
+            <h4>Nâng hạng lên thương gia</h4>
+          </div>
+          <div class="benefit-card">
+            <div class="icon">🧳</div>
+            <h4>Hành lý ưu tiên</h4>
+          </div>
+        </div>
+        <button class="enroll-button" (click)="enrollInProgram()">Đăng ký ngay</button>
+      </div>
+
+      <div class="error-message" *ngIf="error">
+        <div class="icon error-icon">❌</div>
+        <p>{{ error }}</p>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- Loading template -->
+  <ng-template #loadingTemplate>
+    <div class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Đang tải thông tin thành viên...</p>
+    </div>
+  </ng-template>
+</div> 

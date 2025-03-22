@@ -1,0 +1,233 @@
+<div class="container-fluid">
+  <!-- Hero section -->
+  <div class="tour-hero py-5 bg-light mb-5">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-lg-6">
+          <h1 class="display-4 fw-bold mb-3">Khám phá Việt Nam cùng chúng tôi</h1>
+          <p class="lead mb-4">Trải nghiệm những tour du lịch đặc sắc với nhiều ưu đãi hấp dẫn. Hành trình của bạn, niềm đam mê của chúng tôi.</p>
+          
+          <!-- Search form -->
+          <div class="card shadow">
+            <div class="card-body">
+              <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
+                <div class="row g-3">
+                  <div class="col-md-12">
+                    <label for="destination" class="form-label">Điểm đến</label>
+                    <select class="form-select" id="destination" formControlName="destination">
+                      <option value="">Chọn điểm đến</option>
+                      <option *ngFor="let dest of popularDestinations" [value]="dest.name">{{ dest.name }}</option>
+                    </select>
+                  </div>
+                  
+                  <div class="col-md-6">
+                    <label for="duration" class="form-label">Thời gian</label>
+                    <select class="form-select" id="duration" formControlName="duration">
+                      <option value="any">Tất cả</option>
+                      <option value="1-3">1-3 ngày</option>
+                      <option value="4-7">4-7 ngày</option>
+                      <option value="8">8+ ngày</option>
+                    </select>
+                  </div>
+                  
+                  <div class="col-md-6">
+                    <label for="priceRange" class="form-label">Giá</label>
+                    <select class="form-select" id="priceRange" formControlName="priceRange">
+                      <option value="any">Tất cả</option>
+                      <option value="1000000-3000000">1-3 triệu VND</option>
+                      <option value="3000000-5000000">3-5 triệu VND</option>
+                      <option value="5000000-10000000">5-10 triệu VND</option>
+                      <option value="10000000">10+ triệu VND</option>
+                    </select>
+                  </div>
+                  
+                  <div class="col-md-12">
+                    <label for="date" class="form-label">Ngày khởi hành</label>
+                    <input type="date" class="form-control" id="date" formControlName="date">
+                  </div>
+                  
+                  <div class="col-12">
+                    <button type="submit" class="btn btn-primary w-100">
+                      <i class="bi bi-search me-2"></i>Tìm kiếm
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-lg-6 d-none d-lg-block">
+          <div class="position-relative">
+            <img src="https://i-dulich.vnecdn.net/2020/07/01/shutterstock-1169930359-4299-1593590420.jpg" alt="Tour image" class="img-fluid rounded-3 shadow">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Featured tours -->
+  <div class="container mb-5">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <h2 class="fw-bold">Tour nổi bật</h2>
+      <a routerLink="/tours" class="btn btn-outline-primary">Xem tất cả</a>
+    </div>
+    
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4" *ngFor="let tour of featuredTours">
+        <div class="card h-100 tour-card shadow-sm">
+          <div class="position-relative">
+            <img [src]="tour.image" [alt]="tour.title" class="card-img-top tour-image">
+            <div class="tour-price">{{ tour.price | number }} VND</div>
+            <div class="tour-duration">{{ tour.duration }}</div>
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">{{ tour.title }}</h5>
+            <div class="d-flex align-items-center mb-2">
+              <i class="bi bi-geo-alt text-primary me-2"></i>
+              <span>{{ tour.destination }}</span>
+            </div>
+            <div class="d-flex align-items-center mb-3">
+              <div class="tour-rating me-2">
+                <i class="bi bi-star-fill"></i>
+                {{ tour.rating }}
+              </div>
+              <div class="text-muted small">Khởi hành: {{ tour.departureDate }}</div>
+            </div>
+            <p class="card-text">{{ tour.description }}</p>
+          </div>
+          <div class="card-footer bg-white border-top-0">
+            <a [routerLink]="['/tours', tour.id]" class="btn btn-primary w-100">Chi tiết</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Popular destinations -->
+  <div class="container-fluid bg-light py-5 mb-5">
+    <div class="container">
+      <h2 class="fw-bold text-center mb-4">Điểm đến phổ biến</h2>
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-3" *ngFor="let destination of popularDestinations">
+          <div class="card h-100 destination-card shadow-sm" (click)="setDestination(destination.name)">
+            <img [src]="destination.image" class="card-img-top destination-image" [alt]="destination.name">
+            <div class="card-img-overlay d-flex flex-column justify-content-end">
+              <h5 class="card-title text-white">{{ destination.name }}</h5>
+              <div class="text-white">{{ destination.tourCount }} tours</div>
+              <div class="destination-rating">
+                <i class="bi bi-star-fill"></i>
+                {{ destination.rating }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- All tours -->
+  <div class="container mb-5">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <h2 class="fw-bold">Tất cả tours</h2>
+      
+      <div class="d-flex align-items-center">
+        <label for="sortSelect" class="me-2">Sắp xếp:</label>
+        <select id="sortSelect" class="form-select form-select-sm" [(ngModel)]="selectedSort" (change)="setSortOption(selectedSort)">
+          <option *ngFor="let option of sortOptions" [value]="option.value">{{ option.label }}</option>
+        </select>
+      </div>
+    </div>
+    
+    <!-- Loading state -->
+    <div class="text-center py-5" *ngIf="isLoading">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Đang tải...</span>
+      </div>
+      <h5 class="mt-3">Đang tải danh sách tours</h5>
+      <p class="text-muted">Vui lòng đợi trong giây lát...</p>
+    </div>
+    
+    <!-- Tour items -->
+    <div class="row g-4" *ngIf="!isLoading">
+      <div class="col-md-6 col-lg-4" *ngFor="let tour of getPageItems()">
+        <div class="card h-100 tour-card shadow-sm">
+          <div class="position-relative">
+            <img [src]="tour.image" [alt]="tour.title" class="card-img-top tour-image">
+            <div class="tour-price">{{ tour.price | number }} VND</div>
+            <div class="tour-duration">{{ tour.duration }}</div>
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">{{ tour.title }}</h5>
+            <div class="d-flex align-items-center mb-2">
+              <i class="bi bi-geo-alt text-primary me-2"></i>
+              <span>{{ tour.destination }}</span>
+            </div>
+            <div class="d-flex align-items-center mb-3">
+              <div class="tour-rating me-2">
+                <i class="bi bi-star-fill"></i>
+                {{ tour.rating }}
+              </div>
+              <div class="text-muted small">Khởi hành: {{ tour.departureDate }}</div>
+            </div>
+            <p class="card-text">{{ tour.description }}</p>
+          </div>
+          <div class="card-footer bg-white border-top-0">
+            <a [routerLink]="['/tours', tour.id]" class="btn btn-primary w-100">Chi tiết</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- No results found -->
+    <div class="text-center py-5" *ngIf="!isLoading && filteredTours.length === 0">
+      <div class="mb-3">
+        <i class="bi bi-search fs-1 text-muted"></i>
+      </div>
+      <h5>Không tìm thấy tour phù hợp</h5>
+      <p class="text-muted">Vui lòng thử lại với các tiêu chí tìm kiếm khác</p>
+    </div>
+    
+    <!-- Pagination -->
+    <nav *ngIf="!isLoading && getTotalPages().length > 1" class="mt-5 d-flex justify-content-center">
+      <ul class="pagination">
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <button class="page-link" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+            <span>&laquo;</span>
+          </button>
+        </li>
+        <li 
+          class="page-item" 
+          *ngFor="let page of getTotalPages()"
+          [class.active]="page === currentPage"
+        >
+          <button class="page-link" (click)="goToPage(page)">{{ page }}</button>
+        </li>
+        <li class="page-item" [class.disabled]="currentPage === getTotalPages().length">
+          <button 
+            class="page-link" 
+            (click)="goToPage(currentPage + 1)" 
+            [disabled]="currentPage === getTotalPages().length"
+          >
+            <span>&raquo;</span>
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </div>
+  
+  <!-- Call to action -->
+  <div class="container-fluid bg-primary text-white py-5 mb-5">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-lg-8">
+          <h2 class="display-5 fw-bold mb-3">Đặt tour ngay hôm nay</h2>
+          <p class="lead mb-0">Tiết kiệm tới 30% cho đặt tour sớm. Hãy đặt ngay hôm nay để nhận ưu đãi đặc biệt!</p>
+        </div>
+        <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+          <a href="#" class="btn btn-light btn-lg">Đặt ngay</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

@@ -1,0 +1,33 @@
+.not-found-content {
+  padding: 3rem 2rem;
+}
+
+.error-code {
+  font-size: 8rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--bs-primary);
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  font-weight: 600;
+  color: var(--bs-gray-800);
+}
+
+p {
+  font-size: 1.1rem;
+  color: var(--bs-gray-600);
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+}
+
+@media (max-width: 767.98px) {
+  .error-code {
+    font-size: 6rem;
+  }
+} 

@@ -1,0 +1,156 @@
+<div class="container-fluid p-0">
+  <!-- Loading Spinner -->
+  <app-loading *ngIf="isLoading"></app-loading>
+
+  <!-- Hero Section -->
+  <div class="hero-banner news-banner">
+    <div class="overlay"></div>
+    <div class="container">
+      <div class="hero-content text-center text-white">
+        <h1 class="display-4 fw-bold mb-3">Tin tức hàng không</h1>
+        <p class="lead mb-4">Cập nhật những tin tức mới nhất về ngành hàng không, xu hướng du lịch và các chương trình ưu đãi.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="container py-5" *ngIf="!isLoading">
+    <!-- Featured Articles -->
+    <div class="row mb-5">
+      <div class="col-12">
+        <h2 class="mb-4 fw-bold">Tin tức nổi bật</h2>
+      </div>
+      <div class="col-lg-6">
+        <div class="card featured-card h-100 border-0 shadow-sm rounded-4 overflow-hidden" *ngIf="featuredArticles.length > 0">
+          <div class="position-relative">
+            <img [src]="featuredArticles[0].image" class="card-img-top featured-img" alt="Featured news">
+            <div class="featured-overlay p-4">
+              <span class="badge bg-primary mb-2">{{featuredArticles[0].category}}</span>
+              <h3 class="card-title text-white mb-2">{{featuredArticles[0].title}}</h3>
+              <p class="card-text text-white-50 mb-3">{{featuredArticles[0].date}} | {{featuredArticles[0].author}}</p>
+              <a [routerLink]="['/news', featuredArticles[0].id]" class="btn btn-outline-light">Đọc thêm</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="row h-100">
+          <div class="col-md-6 mb-4 mb-md-0" *ngIf="featuredArticles.length > 1">
+            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+              <div class="position-relative">
+                <img [src]="featuredArticles[1].image" class="card-img-top secondary-featured-img" alt="Featured news">
+                <div class="featured-overlay p-3">
+                  <span class="badge bg-primary mb-2">{{featuredArticles[1].category}}</span>
+                  <h5 class="card-title text-white mb-2">{{featuredArticles[1].title}}</h5>
+                  <p class="card-text text-white-50 small mb-2">{{featuredArticles[1].date}}</p>
+                  <a [routerLink]="['/news', featuredArticles[1].id]" class="btn btn-sm btn-outline-light">Đọc thêm</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6" *ngIf="featuredArticles.length > 2">
+            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+              <div class="position-relative">
+                <img [src]="featuredArticles[2].image" class="card-img-top secondary-featured-img" alt="Featured news">
+                <div class="featured-overlay p-3">
+                  <span class="badge bg-primary mb-2">{{featuredArticles[2].category}}</span>
+                  <h5 class="card-title text-white mb-2">{{featuredArticles[2].title}}</h5>
+                  <p class="card-text text-white-50 small mb-2">{{featuredArticles[2].date}}</p>
+                  <a [routerLink]="['/news', featuredArticles[2].id]" class="btn btn-sm btn-outline-light">Đọc thêm</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- News Content -->
+    <div class="row">
+      <!-- Sidebar with Categories -->
+      <div class="col-lg-3 mb-4 mb-lg-0">
+        <div class="card border-0 shadow-sm rounded-4">
+          <div class="card-body">
+            <h5 class="card-title fw-bold mb-3">Danh mục</h5>
+            <div class="list-group list-group-flush">
+              <button 
+                class="list-group-item list-group-item-action border-0 px-0"
+                [class.active]="selectedCategory === 'all'"
+                (click)="filterByCategory('all')">
+                Tất cả
+              </button>
+              <button 
+                *ngFor="let category of categories" 
+                class="list-group-item list-group-item-action border-0 px-0"
+                [class.active]="selectedCategory === category"
+                (click)="filterByCategory(category)">
+                {{category}}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Newsletter Signup -->
+        <div class="card border-0 shadow-sm rounded-4 mt-4">
+          <div class="card-body">
+            <h5 class="card-title fw-bold mb-3">Đăng ký nhận tin</h5>
+            <p class="card-text text-muted small mb-3">Nhận thông báo về tin tức mới nhất và khuyến mãi đặc biệt.</p>
+            <div class="input-group mb-3">
+              <input type="email" class="form-control" placeholder="Email của bạn">
+              <button class="btn btn-primary" type="button">Đăng ký</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Article Listings -->
+      <div class="col-lg-9">
+        <div class="row">
+          <!-- Empty State -->
+          <div class="col-12 text-center py-5" *ngIf="paginatedArticles.length === 0">
+            <div class="no-results">
+              <i class="bi bi-newspaper fs-1 text-muted no-results-icon mb-3 d-block"></i>
+              <h4>Không tìm thấy bài viết</h4>
+              <p class="text-muted">Không có bài viết nào trong danh mục này.</p>
+              <button class="btn btn-outline-primary" (click)="filterByCategory('all')">Xem tất cả bài viết</button>
+            </div>
+          </div>
+
+          <!-- Article Cards -->
+          <div class="col-md-6 col-lg-4 mb-4" *ngFor="let article of paginatedArticles">
+            <div class="card h-100 border-0 shadow-sm hover-card rounded-4 overflow-hidden">
+              <img [src]="article.image" class="card-img-top article-img" alt="Article image">
+              <div class="card-body">
+                <span class="badge bg-light text-primary mb-2">{{article.category}}</span>
+                <h5 class="card-title">{{article.title}}</h5>
+                <p class="card-text text-muted small">{{truncateText(article.summary, 100)}}</p>
+              </div>
+              <div class="card-footer bg-transparent border-0 d-flex justify-content-between align-items-center">
+                <small class="text-muted">{{article.date}}</small>
+                <a [routerLink]="['/news', article.id]" class="btn btn-sm btn-outline-primary">Đọc thêm</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <nav aria-label="Page navigation" class="my-4" *ngIf="totalPages > 1">
+          <ul class="pagination justify-content-center">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <button class="page-link" (click)="changePage(currentPage - 1)" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+              </button>
+            </li>
+            <li class="page-item" *ngFor="let page of getPagesArray()" [class.active]="currentPage === page">
+              <button class="page-link" (click)="changePage(page)">{{page}}</button>
+            </li>
+            <li class="page-item" [class.disabled]="currentPage === totalPages">
+              <button class="page-link" (click)="changePage(currentPage + 1)" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div> 
