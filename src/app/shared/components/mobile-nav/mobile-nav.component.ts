@@ -1,26 +1,25 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { MobileNavComponent } from '../mobile-nav/mobile-nav.component';
 import { AuthService } from '../../../core/services/auth.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
-  selector: 'app-header',
+  selector: 'app-mobile-nav',
   standalone: true,
   imports: [
     CommonModule,
     RouterLink,
-    RouterLinkActive,
-    MobileNavComponent
+    RouterLinkActive
   ],
-  templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss']
+  templateUrl: './mobile-nav.component.html',
+  styleUrls: ['./mobile-nav.component.scss']
 })
-export class HeaderComponent implements OnInit {
+export class MobileNavComponent implements OnInit {
   private router = inject(Router);
   private authService = inject(AuthService);
   
+  isMenuOpen = signal(false);
   isLoggedIn = signal(false);
   
   ngOnInit(): void {
@@ -32,7 +31,16 @@ export class HeaderComponent implements OnInit {
       });
   }
   
+  toggleMenu() {
+    this.isMenuOpen.update(current => !current);
+  }
+  
+  closeMenu() {
+    this.isMenuOpen.set(false);
+  }
+  
   logout(): void {
     this.authService.logout();
+    this.closeMenu();
   }
-} 
+}

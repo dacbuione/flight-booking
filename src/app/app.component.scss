@@ -1,4 +1,19 @@
 .main-content {
   min-height: calc(100vh - 300px);
   background-color: #f8f9fa;
+  padding: 20px 0;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  .main-content {
+    padding: 15px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    min-height: calc(100vh - 250px);
+    padding: 10px 0;
+  }
 }

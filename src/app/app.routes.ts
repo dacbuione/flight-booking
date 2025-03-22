@@ -38,6 +38,13 @@ export const routes: Routes = [
     title: 'Danh sách chuyến bay - Flight Booking'
   },
   
+  // Flights route
+  {
+    path: 'flights',
+    loadComponent: () => import('./features/flights/flights.component').then(c => c.FlightsComponent),
+    title: 'Thông tin chuyến bay - Flight Booking'
+  },
+  
   // Tours route
   {
     path: 'tours',
@@ -104,8 +111,5 @@ export const routes: Routes = [
     path: '**',
     loadComponent: () => import('./features/not-found/not-found.component').then(c => c.NotFoundComponent),
     title: 'Không tìm thấy trang - Flight Booking'
-  },
-  
-  // Default redirect
-  { path: '**', redirectTo: '/home', pathMatch: 'full' }
+  }
 ];

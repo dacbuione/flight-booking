@@ -18,7 +18,10 @@ import { isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { Observable } from 'rxjs';
 import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
-import { NgbDropdownModule, NgbAccordionModule } from '@ng-bootstrap/ng-bootstrap';
+import {
+  NgbDropdownModule,
+  NgbAccordionModule,
+} from '@ng-bootstrap/ng-bootstrap';
 import { HeroComponent } from './components/hero/hero.component';
 // Import Swiper core and required modules
 import Swiper from 'swiper';
@@ -192,26 +195,74 @@ export class HomeComponent implements OnInit, AfterViewInit {
     {
       id: 1,
       name: 'Vietnam Airlines',
-      logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQXpekkNGqhGpUqhXA24hluYBTi8nAP3SrVPA&s',
+      logo: 'https://cdn.datacom.vn/images/banner/TEMP3/aubdpft3.png',
       code: 'VN',
     },
     {
       id: 2,
       name: 'Bamboo Airways',
-      logo: 'https://inkythuatso.com/uploads/images/2021/09/logo-bamboo-airways-inkythuatso-13-16-26-24.jpg',
+      logo: 'https://cdn.datacom.vn/images/banner/TEMP3/wwfyftdo.png',
       code: 'QH',
     },
     {
       id: 3,
       name: 'Vietjet Air',
-      logo: 'https://bestcargo.vn/en/wp-content/uploads/2023/06/VJ971.png',
+      logo: 'https://cdn.datacom.vn/images/banner/TEMP3/zv1x0c05.png',
       code: 'VJ',
     },
     {
       id: 4,
-      name: 'Pacific Airlines',
-      logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLNuynwHu8TsT3kocClQlkw0O6zDbgzfLxJw&s',
+      name: 'Malaysia Airlines',
+      logo: 'https://cdn.datacom.vn/images/banner/TEMP3/rzwaulqa.png',
       code: 'BL',
+    },
+    {
+      id: 5,
+      name: 'Thai Airlines',
+      logo: 'https://cdn.datacom.vn/images/banner/TEMP3/guqbxewp.png',
+      code: 'TH',
+    },
+    {
+      id: 6,
+      name: 'Japan Airlines',
+      logo: 'https://cdn.datacom.vn/images/banner/TEMP3/g4m0xrd5.png',
+      code: 'JL',
+    },
+    {
+      id: 7,
+      name: 'China Airlines',
+      logo: 'https://cdn.datacom.vn/images/banner/TEMP3/fcbhdzdk.png',
+      code: 'CI',
+    },
+    {
+      id: 8,
+      name: 'Vietravel Airlines',
+      logo: 'https://cdn.datacom.vn/images/banner/TEMP3/lwoasxiz.png',
+      code: 'VN',
+    },
+    {
+      id: 9,
+      name: 'Cathay Airlines',
+      logo: 'https://cdn.datacom.vn/images/banner/TEMP3/dpqpriir.png',
+      code: 'VN',
+    },
+    {
+      id: 10,
+      name: 'Lufthansa Airlines',
+      logo: 'https://cdn.datacom.vn/images/banner/TEMP3/0iiqukco.png',
+      code: 'VN',
+    },
+    {
+      id: 11,
+      name: 'AirAsia Airlines',
+      logo: 'https://cdn.datacom.vn/images/banner/TEMP3/w32w4t0p.png',
+      code: 'VN',
+    },
+    {
+      id: 12,
+      name: 'Swiss Airlines',
+      logo: 'https://cdn.datacom.vn/images/banner/TEMP3/icm2em12.png',
+      code: 'VN',
     },
   ];
 
@@ -311,29 +362,31 @@ export class HomeComponent implements OnInit, AfterViewInit {
   bannerSwiper: Swiper | undefined;
 
   searchTerm = signal('');
-  
+
   // Computed signals for filtered FAQs
   filteredFaqsLeft = computed(() => {
     const term = this.searchTerm().toLowerCase().trim();
     if (!term) return this.faqs.slice(0, 5);
-    
+
     return this.faqs
-      .filter(faq => 
-        faq.question.toLowerCase().includes(term) || 
-        faq.answer.toLowerCase().includes(term)
+      .filter(
+        (faq) =>
+          faq.question.toLowerCase().includes(term) ||
+          faq.answer.toLowerCase().includes(term)
       )
       .slice(0, 5);
   });
-  
+
   filteredFaqsRight = computed(() => {
     const term = this.searchTerm().toLowerCase().trim();
     if (!term) return this.faqs.slice(5, 10);
-    
-    const filtered = this.faqs.filter(faq => 
-      faq.question.toLowerCase().includes(term) || 
-      faq.answer.toLowerCase().includes(term)
+
+    const filtered = this.faqs.filter(
+      (faq) =>
+        faq.question.toLowerCase().includes(term) ||
+        faq.answer.toLowerCase().includes(term)
     );
-    
+
     return filtered.length > 5 ? filtered.slice(5, 10) : [];
   });
 
@@ -479,23 +532,29 @@ export class HomeComponent implements OnInit, AfterViewInit {
         try {
           // Dynamically import bootstrap only in browser
           const bootstrap = await import('bootstrap');
-          
-          const accordionButtons = document.querySelectorAll('.accordion-button');
+
+          const accordionButtons =
+            document.querySelectorAll('.accordion-button');
           accordionButtons.forEach((button: Element) => {
             button.addEventListener('click', (event: Event) => {
               const targetButton = event.currentTarget as HTMLElement;
-              const isExpanded = targetButton.getAttribute('aria-expanded') === 'true';
-              const target = targetButton.getAttribute('data-bs-target') || targetButton.getAttribute('href');
-              
+              const isExpanded =
+                targetButton.getAttribute('aria-expanded') === 'true';
+              const target =
+                targetButton.getAttribute('data-bs-target') ||
+                targetButton.getAttribute('href');
+
               if (target) {
-                const collapseEl = document.querySelector(target) as HTMLElement;
+                const collapseEl = document.querySelector(
+                  target
+                ) as HTMLElement;
                 if (collapseEl) {
                   // Use try-catch to safely handle potential bootstrap issues
                   try {
                     const bsCollapse = new bootstrap.Collapse(collapseEl, {
-                      toggle: false
+                      toggle: false,
                     });
-                    
+
                     // Toggle collapse based on current state
                     if (isExpanded) {
                       bsCollapse.hide();
@@ -503,16 +562,21 @@ export class HomeComponent implements OnInit, AfterViewInit {
                       bsCollapse.show();
                     }
                   } catch (error) {
-                    console.error('Error initializing bootstrap collapse:', error);
+                    console.error(
+                      'Error initializing bootstrap collapse:',
+                      error
+                    );
                   }
                 }
               }
             });
           });
-          
+
           // Open first FAQ after a delay for better UX
           setTimeout(() => {
-            const firstAccordionButton = document.querySelector('#accordionQuestion1Header0 .accordion-button') as HTMLElement;
+            const firstAccordionButton = document.querySelector(
+              '#accordionQuestion1Header0 .accordion-button'
+            ) as HTMLElement;
             if (firstAccordionButton) {
               firstAccordionButton.click();
             }
@@ -529,13 +593,13 @@ export class HomeComponent implements OnInit, AfterViewInit {
     const input = event.target as HTMLInputElement;
     this.searchTerm.set(input.value);
   }
-  
+
   // Scroll to top method
   scrollToTop(): void {
     if (isPlatformBrowser(this.platformId)) {
       window.scrollTo({
         top: 0,
-        behavior: 'smooth'
+        behavior: 'smooth',
       });
     }
   }

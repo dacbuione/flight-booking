@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
@@ -39,13 +39,25 @@ export class AuthService {
   }
 
   private initializeAuthState(): void {
-    const token = this.storageService.getItem('token');
-    if (token) {
-      // Xử lý khi có token
-      // ...
-    } else {
-      // Xử lý khi không có token
-      // ...
+    const token = this.storageService.getItem(this.TOKEN_KEY);
+    const refreshToken = this.storageService.getItem(this.REFRESH_TOKEN_KEY);
+    const userDataStr = this.storageService.getItem(this.USER_KEY);
+    
+    if (token && userDataStr) {
+      try {
+        const userData = JSON.parse(userDataStr) as User;
+        this.authStateSubject.next({
+          user: userData,
+          accessToken: token,
+          refreshToken,
+          isLoggedIn: true,
+          isLoading: false,
+          error: null
+        });
+      } catch (e) {
+        // Handle invalid user data in storage
+        this.clearLocalStorage();
+      }
     }
   }
 
@@ -133,8 +145,8 @@ export class AuthService {
           refreshToken: response.refreshToken
         });
         
-        localStorage.setItem(this.TOKEN_KEY, response.accessToken);
-        localStorage.setItem(this.REFRESH_TOKEN_KEY, response.refreshToken);
+        this.storageService.setItem(this.TOKEN_KEY, response.accessToken);
+        this.storageService.setItem(this.REFRESH_TOKEN_KEY, response.refreshToken);
       }),
       map(response => response.accessToken),
       catchError(error => {
@@ -149,11 +161,11 @@ export class AuthService {
   }
 
   private setSession(user: User, accessToken: string, refreshToken: string | null): void {
-    localStorage.setItem(this.TOKEN_KEY, accessToken);
-    localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+    this.storageService.setItem(this.TOKEN_KEY, accessToken);
+    this.storageService.setItem(this.USER_KEY, JSON.stringify(user));
     
     if (refreshToken) {
-      localStorage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
+      this.storageService.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
     }
     
     this.authStateSubject.next({
@@ -167,9 +179,9 @@ export class AuthService {
   }
 
   private clearLocalStorage(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem(this.REFRESH_TOKEN_KEY);
-    localStorage.removeItem(this.USER_KEY);
+    this.storageService.removeItem(this.TOKEN_KEY);
+    this.storageService.removeItem(this.REFRESH_TOKEN_KEY);
+    this.storageService.removeItem(this.USER_KEY);
   }
 
   private setLoading(isLoading: boolean): void {

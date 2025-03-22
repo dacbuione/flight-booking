@@ -7,7 +7,7 @@
   z-index: 1000;
 }
 
-.header-content {
+.header-content, .header-content-mobile {
   width: 100%;
   padding: 10px 0;
 }
@@ -16,6 +16,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.header-inner-mobile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 0;
 }
 
 .logo {
@@ -34,6 +41,11 @@
 
   .nav-item {
     margin: 0 15px;
+    position: relative;
+    
+    &:hover .dropdown-content {
+      display: block;
+    }
   }
 
   .nav-link {
@@ -43,6 +55,7 @@
     font-size: 16px;
     display: flex;
     align-items: center;
+    padding: 8px 0;
     
     i {
       margin-left: 5px;
@@ -51,6 +64,95 @@
     
     &:hover {
       color: #ffcc00;
+    }
+    
+    &.active {
+      color: #ffcc00;
+      font-weight: 700;
+    }
+  }
+  
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #0067c5;
+    min-width: 200px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    z-index: 1;
+    border-radius: 4px;
+    padding: 8px 0;
+    
+    a {
+      color: white;
+      padding: 8px 16px;
+      text-decoration: none;
+      display: block;
+      font-size: 15px;
+      
+      &:hover {
+        background-color: #005cb2;
+        color: #ffcc00;
+      }
+      
+      &.active {
+        color: #ffcc00;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+.auth-actions {
+  display: flex;
+  gap: 10px;
+  
+  .btn {
+    padding: 8px 15px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    
+    &.btn-login {
+      background-color: transparent;
+      color: white;
+      border: 1px solid white;
+      
+      &:hover {
+        background-color: rgba(255,255,255,0.1);
+      }
+      
+      &.active {
+        background-color: rgba(255,255,255,0.2);
+      }
+    }
+    
+    &.btn-register, &.btn-profile {
+      background-color: #ffcc00;
+      color: #005cb2;
+      border: 1px solid #ffcc00;
+      
+      &:hover {
+        background-color: #ffd633;
+      }
+      
+      &.active {
+        background-color: #ffd633;
+        font-weight: 600;
+      }
+    }
+    
+    &.btn-logout {
+      background-color: #e74c3c;
+      color: white;
+      border: 1px solid #e74c3c;
+      cursor: pointer;
+      
+      &:hover {
+        background-color: #c0392b;
+        border-color: #c0392b;
+      }
     }
   }
 }
@@ -76,6 +178,21 @@
   }
 }
 
+// Desktop and mobile classes
+.desktop-only {
+  display: block;
+}
+
+.mobile-only {
+  display: none;
+}
+
+@media (max-width: 1200px) {
+  .auth-actions {
+    margin-left: 15px;
+  }
+}
+
 @media (max-width: 992px) {
   .header-inner {
     flex-direction: column;
@@ -83,7 +200,35 @@
     gap: 15px;
   }
   
+  .navigation {
+    width: 100%;
+    overflow-x: auto;
+    
+    .nav-menu {
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    .dropdown-content {
+      left: 0;
+    }
+  }
+  
+  .auth-actions {
+    margin: 10px 0;
+  }
+  
   .contact-info {
     text-align: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none;
+  }
+  
+  .mobile-only {
+    display: block;
   }
 } 

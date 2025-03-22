@@ -1,5 +1,8 @@
 <header class="header">
-  <div class="header-content">
+  <!-- Mobile Navigation -->
+  <app-mobile-nav class="mobile-only"></app-mobile-nav>
+  
+  <div class="header-content desktop-only">
     <div class="container">
       <div class="header-inner">
         <div class="logo">
@@ -15,37 +18,39 @@
           <nav>
             <ul class="nav-menu">
               <li class="nav-item dropdown">
-                <a class="nav-link" routerLink="/flight-search"> Vé máy bay </a>
+                <a class="nav-link" routerLink="/flight-search" routerLinkActive="active">Vé máy bay</a>
+                <div class="dropdown-content">
+                  <a routerLink="/flight-listing" routerLinkActive="active">Danh sách chuyến bay</a>
+                  <a routerLink="/flights" routerLinkActive="active">Thông tin chuyến bay</a>
+                </div>
               </li>
               <li class="nav-item">
-                <a
-                  class="nav-link"
-                  [routerLink]="['/tours']"
-                  routerLinkActive="active"
-                  >Tour du lịch</a
-                >
+                <a class="nav-link" routerLink="/tours" routerLinkActive="active">Tour du lịch</a>
               </li>
               <li class="nav-item">
-                <a
-                  class="nav-link"
-                  [routerLink]="['/hotels']"
-                  routerLinkActive="active"
-                  >Khách sạn</a
-                >
+                <a class="nav-link" routerLink="/hotels" routerLinkActive="active">Khách sạn</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" routerLink="/news" routerLinkActive="active"
-                  >Tin tức</a
-                >
+                <a class="nav-link" routerLink="/news" routerLinkActive="active">Tin tức</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" routerLink="/lien-he">Liên hệ</a>
+                <a class="nav-link" routerLink="/promotions" routerLinkActive="active">Khuyến mãi</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" routerLink="/frequent-flyer">VIP</a>
+                <a class="nav-link" routerLink="/frequent-flyer" routerLinkActive="active">VIP</a>
               </li>
             </ul>
           </nav>
+        </div>
+
+        <div class="auth-actions">
+          @if (!isLoggedIn()) {
+            <a class="btn btn-login" routerLink="/auth/login" routerLinkActive="active">Đăng nhập</a>
+            <a class="btn btn-register" routerLink="/auth/register" routerLinkActive="active">Đăng ký</a>
+          } @else {
+            <a class="btn btn-profile" routerLink="/profile" routerLinkActive="active">Tài khoản</a>
+            <button class="btn btn-logout" (click)="logout()">Đăng xuất</button>
+          }
         </div>
 
         <div class="contact-info">
@@ -57,6 +62,22 @@
               Giờ làm việc: <span class="hours">Từ 8h - 22h</span>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Mobile Header -->
+  <div class="header-content-mobile mobile-only">
+    <div class="container">
+      <div class="header-inner-mobile">
+        <div class="logo">
+          <a routerLink="/">
+            <img
+              src="assets/images/logo/webbanve-logo.png"
+              alt="WebBanVe Logo"
+            />
+          </a>
         </div>
       </div>
     </div>

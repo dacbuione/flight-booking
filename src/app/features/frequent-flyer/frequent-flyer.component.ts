@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { FrequentFlyerService } from '../../core/services/frequent-flyer.service';
 import { FrequentFlyer, Benefit, ActivityRecord, TierLevel } from '../../core/models/frequent-flyer.model';
 import { AuthService } from '../../core/services/auth.service';
-import { Observable, of, switchMap, catchError } from 'rxjs';
+import { Observable, of, switchMap, catchError, take } from 'rxjs';
 import { User } from '../../core/models/user.model';
 
 @Component({
@@ -33,7 +33,8 @@ export class FrequentFlyerComponent implements OnInit {
 
   constructor(
     private frequentFlyerService: FrequentFlyerService,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -140,22 +141,27 @@ export class FrequentFlyerComponent implements OnInit {
   }
 
   enrollInProgram(): void {
-    this.authService.currentUser$.subscribe((user: User | null) => {
-      if (user) {
-        this.frequentFlyerService.enrollUser(
-          user.id, 
-          user.firstName || 'New', 
-          user.lastName || 'Member', 
-          user.email
-        ).subscribe({
-          next: () => {
-            this.loadFrequentFlyerData(); // Reload data after enrollment
-          },
-          error: () => {
-            this.error = 'Không thể đăng ký chương trình khách hàng thân thiết. Vui lòng thử lại sau.';
-          }
-        });
+    this.authService.currentUser$.pipe(
+      take(1)
+    ).subscribe((user: User | null) => {
+      if (!user) {
+        this.router.navigate(['/auth/login']);
+        return;
       }
+      
+      this.frequentFlyerService.enrollUser(
+        user.id, 
+        user.firstName || 'New', 
+        user.lastName || 'Member', 
+        user.email
+      ).subscribe({
+        next: () => {
+          this.loadFrequentFlyerData(); // Reload data after enrollment
+        },
+        error: () => {
+          this.error = 'Không thể đăng ký chương trình khách hàng thân thiết. Vui lòng thử lại sau.';
+        }
+      });
     });
   }
 

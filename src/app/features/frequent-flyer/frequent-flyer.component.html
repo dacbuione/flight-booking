@@ -1,14 +1,21 @@
 <div class="frequent-flyer-container">
   <div class="content-container" *ngIf="!isLoading; else loadingTemplate">
-    <ng-container *ngIf="(frequentFlyer$ | async) as frequentFlyer; else notEnrolled">
+    <ng-container
+      *ngIf="frequentFlyer$ | async as frequentFlyer; else notEnrolled"
+    >
       <!-- Header with member information -->
       <div class="member-header">
-        <div class="tier-badge" [ngClass]="frequentFlyer.tierLevel.toLowerCase()">
+        <div
+          class="tier-badge"
+          [ngClass]="frequentFlyer.tierLevel.toLowerCase()"
+        >
           {{ getTierName(frequentFlyer.tierLevel) }}
         </div>
         <div class="member-info">
           <h2>Thành viên: {{ frequentFlyer.membershipNumber }}</h2>
-          <p>Đã tham gia: {{ getFormattedDate(frequentFlyer.enrollmentDate) }}</p>
+          <p>
+            Đã tham gia: {{ getFormattedDate(frequentFlyer.enrollmentDate) }}
+          </p>
           <p>Hạn hạng: {{ getFormattedDate(frequentFlyer.tierExpiryDate) }}</p>
         </div>
         <div class="points-display">
@@ -36,7 +43,7 @@
       <div class="benefits-section">
         <h3>Ưu đãi của bạn</h3>
         <div class="benefits-container">
-          <div class="benefit-card" *ngFor="let benefit of (benefits$ | async)">
+          <div class="benefit-card" *ngFor="let benefit of benefits$ | async">
             <div class="icon">{{ benefit.icon }}</div>
             <h4>{{ benefit.name }}</h4>
             <p>{{ benefit.description }}</p>
@@ -58,12 +65,18 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let activity of (activityHistory$ | async)">
+              <tr *ngFor="let activity of activityHistory$ | async">
                 <td>{{ getFormattedDate(activity.date) }}</td>
                 <td>{{ activity.activityType }}</td>
                 <td>{{ activity.description }}</td>
-                <td [ngClass]="{'positive': activity.pointsEarned > 0, 'negative': activity.pointsEarned < 0}">
-                  {{ activity.pointsEarned > 0 ? '+' : '' }}{{ activity.pointsEarned | number }}
+                <td
+                  [ngClass]="{
+                    positive: activity.pointsEarned > 0,
+                    negative: activity.pointsEarned < 0
+                  }"
+                >
+                  {{ activity.pointsEarned > 0 ? "+" : ""
+                  }}{{ activity.pointsEarned | number }}
                 </td>
               </tr>
             </tbody>
@@ -72,14 +85,14 @@
 
         <!-- Pagination -->
         <div class="pagination" *ngIf="totalActivities > pageSize">
-          <button 
+          <button
             [disabled]="currentPage === 1"
             (click)="changePage(currentPage - 1)"
           >
             &lt;
           </button>
           <span>{{ currentPage }}</span>
-          <button 
+          <button
             [disabled]="currentPage * pageSize >= totalActivities"
             (click)="changePage(currentPage + 1)"
           >
@@ -91,9 +104,12 @@
 
     <!-- Not enrolled template -->
     <ng-template #notEnrolled>
-      <div class="not-enrolled" *ngIf="!error">
+      <div class="not-enrolled">
         <h2>Trở thành Thành viên Thân thiết</h2>
-        <p>Tham gia chương trình khách hàng thân thiết để tích điểm và nhận nhiều ưu đãi đặc biệt với mỗi chuyến bay</p>
+        <p>
+          Tham gia chương trình khách hàng thân thiết để tích điểm và nhận nhiều
+          ưu đãi đặc biệt với mỗi chuyến bay
+        </p>
         <div class="benefits-preview">
           <div class="benefit-card">
             <div class="icon">🎫</div>
@@ -112,12 +128,9 @@
             <h4>Hành lý ưu tiên</h4>
           </div>
         </div>
-        <button class="enroll-button" (click)="enrollInProgram()">Đăng ký ngay</button>
-      </div>
-
-      <div class="error-message" *ngIf="error">
-        <div class="icon error-icon">❌</div>
-        <p>{{ error }}</p>
+        <button class="enroll-button" (click)="enrollInProgram()">
+          Đăng ký ngay
+        </button>
       </div>
     </ng-template>
   </div>
@@ -129,4 +142,4 @@
       <p>Đang tải thông tin thành viên...</p>
     </div>
   </ng-template>
-</div> 
+</div>
