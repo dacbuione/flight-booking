@@ -1,19 +1,158 @@
 .footer {
   margin-top: 3rem;
+  background-color: #f8f9fa;
+  position: relative;
+  color: #555;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(to right, #0078d4, #00a1ff, #0078d4);
+  }
 }
 
-.footer hr {
-  opacity: 0.2;
+.footer-brand {
+  i {
+    color: #0078d4;
+  }
+  
+  h5 {
+    color: #0078d4;
+    font-weight: 600;
+  }
+}
+
+.footer-heading {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  position: relative;
+  padding-bottom: 0.5rem;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 40px;
+    height: 2px;
+    background-color: #0078d4;
+  }
+}
+
+.footer-divider {
+  border-color: rgba(0, 0, 0, 0.1);
+  margin: 2rem 0;
 }
 
 .social-links {
-  a {
-    font-size: 1.25rem;
-    transition: all 0.2s ease;
+  .social-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: rgba(0, 120, 212, 0.1);
+    color: #0078d4;
+    transition: all 0.3s ease;
+    
+    i {
+      font-size: 1rem;
+    }
 
     &:hover {
       transform: translateY(-3px);
-      opacity: 0.8;
+      background-color: #0078d4;
+      color: white;
+      box-shadow: 0 4px 8px rgba(0, 120, 212, 0.2);
     }
   }
+}
+
+.footer-link-item {
+  margin-bottom: 12px;
+}
+
+.footer-link {
+  color: #666;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+  
+  i {
+    margin-right: 8px;
+    color: #0078d4;
+    font-size: 14px;
+  }
+  
+  &:hover {
+    color: #0078d4;
+    transform: translateX(5px);
+  }
+}
+
+.footer-contact-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  
+  .contact-icon {
+    color: #0078d4;
+    margin-right: 12px;
+    margin-top: 3px;
+  }
+}
+
+.newsletter-form {
+  .form-control {
+    border-radius: 6px 0 0 6px;
+    border: 1px solid #ced4da;
+    padding: 10px 15px;
+    
+    &:focus {
+      box-shadow: none;
+      border-color: #0078d4;
+    }
+  }
+  
+  .btn {
+    border-radius: 0 6px 6px 0;
+    background-color: #0078d4;
+    border-color: #0078d4;
+    
+    &:hover {
+      background-color: #0067b8;
+    }
+  }
+}
+
+.legal-link {
+  color: #777;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: #0078d4;
+  }
+}
+
+.payment-methods {
+  img {
+    transition: transform 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+    }
+  }
+}
+
+.copyright {
+  color: #777;
 } 

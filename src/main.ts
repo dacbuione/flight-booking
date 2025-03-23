@@ -12,6 +12,7 @@ import { AuthInterceptor } from './app/core/interceptors/auth.interceptor';
 
 // Import Swiper CSS
 import 'swiper/css';
+import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/effect-fade';
 

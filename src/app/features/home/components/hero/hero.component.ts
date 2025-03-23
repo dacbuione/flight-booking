@@ -1,47 +1,65 @@
-import {
-  Component,
-  OnInit,
-  OnDestroy,
-  signal,
-  PLATFORM_ID,
-  Inject,
-  AfterViewInit,
-} from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  Validators,
-  ReactiveFormsModule,
-  FormsModule,
-} from '@angular/forms';
+import { Component, OnInit, OnDestroy, HostListener, PLATFORM_ID, Inject } from '@angular/core';
+import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatRadioModule } from '@angular/material/radio';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { Observable, of } from 'rxjs';
-// Import Swiper modules
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NgClass, NgIf } from '@angular/common';
 import Swiper from 'swiper';
-import { Pagination, Autoplay, EffectFade } from 'swiper/modules';
-import { Router } from '@angular/router';
+import { Navigation, Pagination, Autoplay, EffectFade } from 'swiper/modules';
 
-// Mock data for airports
-interface Airport {
+// Initialize Swiper modules
+Swiper.use([Navigation, Pagination, Autoplay, EffectFade]);
+
+// Define interfaces for our data structures
+interface AirportLocation {
   code: string;
   name: string;
-  city: string;
+  cityName: string;
   country: string;
-  popular: boolean;
-  domestic: boolean;
-  international: boolean;
+  type: string;
+  isPopular: boolean;
+}
+
+interface CityLocation {
+  code: string;
+  name: string;
+  country: string;
+  type: string;
+  isPopular: boolean;
+}
+
+interface SeatClassOption {
+  value: string;
+  label: string;
+  description: string;
+}
+
+interface PassengerType {
+  key: string;
+  label: string;
+  ageDescription: string;
+  min: number;
+  max: number;
+}
+
+interface SearchQueryParams {
+  tripType: string;
+  origin: string;
+  destination: string;
+  departDate: string;
+  seatClass: string;
+  adults: number;
+  children: number;
+  infants: number;
+  returnDate?: string;
+  promoCode?: string;
 }
 
 @Component({
@@ -51,778 +69,521 @@ interface Airport {
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
+    MatIconModule,
     MatDatepickerModule,
     MatNativeDateModule,
     MatButtonModule,
-    MatIconModule,
-    MatRadioModule,
-    MatButtonToggleModule,
-    MatAutocompleteModule,
-    MatTooltipModule,
+    MatInputModule,
+    MatFormFieldModule,
     MatCheckboxModule,
     FormsModule,
+    ReactiveFormsModule,
+    NgClass,
+    NgIf
   ],
 })
-export class HeroComponent implements OnInit, OnDestroy, AfterViewInit {
-  searchForm: FormGroup;
+export class HeroComponent implements OnInit, OnDestroy {
+  searchForm!: FormGroup;
   today = new Date();
-  currentBackgroundIndex = signal<number>(0);
-
-  // Passenger counts
-  adultCount = signal<number>(1);
-  childCount = signal<number>(0);
-  infantCount = signal<number>(0);
-
-  // UI state
-  isPassengerDropdownOpen = false;
-  isSeatClassDropdownOpen = false;
+  
+  // Banner backgrounds
+  backgrounds = [
+    'https://images.unsplash.com/photo-1536323760109-ca8c07450053?q=80&w=1920&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=1920&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1544468266-6a8948087de9?q=80&w=1920&auto=format&fit=crop'
+  ];
+  
+  // Dropdowns visibility state
+  isSeatClassDropdownVisible = false;
+  isPassengerDropdownVisible = false;
   isPromoCodeVisible = false;
-
-  // Airports data
-  airports: Airport[] = [
+  
+  // Location selector
+  isLocationSelectorVisible = false;
+  currentLocationInput = '';
+  locationSearchQuery = '';
+  activeLocationTab = 'popular';
+  filteredLocations: (AirportLocation | CityLocation)[] = [];
+  
+  // Seat class options
+  seatClassOptions: SeatClassOption[] = [
     {
-      code: 'HAN',
-      name: 'Nội Bài',
-      city: 'Hà Nội',
-      country: 'Việt Nam',
-      popular: true,
-      domestic: true,
-      international: false,
+      value: 'economy',
+      label: 'Phổ thông',
+      description: 'Lựa chọn tiết kiệm với dịch vụ cơ bản',
     },
     {
+      value: 'premium_economy',
+      label: 'Phổ thông đặc biệt',
+      description: 'Ghế rộng hơn và nhiều đặc quyền hơn phổ thông',
+    },
+    {
+      value: 'business',
+      label: 'Thương gia',
+      description: 'Trải nghiệm đẳng cấp với không gian rộng rãi và dịch vụ cao cấp',
+    },
+    {
+      value: 'first',
+      label: 'Hạng nhất',
+      description: 'Trải nghiệm xa xỉ với dịch vụ cá nhân hoá và đẳng cấp hàng đầu',
+    },
+  ];
+  
+  // Passenger types
+  passengerTypes: PassengerType[] = [
+    {
+      key: 'adults',
+      label: 'Người lớn',
+      ageDescription: 'Từ 12 tuổi trở lên',
+      min: 1,
+      max: 9,
+    },
+    {
+      key: 'children',
+      label: 'Trẻ em',
+      ageDescription: 'Từ 2 đến dưới 12 tuổi',
+      min: 0,
+      max: 8,
+    },
+    {
+      key: 'infants',
+      label: 'Em bé',
+      ageDescription: 'Dưới 2 tuổi',
+      min: 0,
+      max: 4,
+    },
+  ];
+  
+  // Airport data
+  airports: AirportLocation[] = [
+    {
       code: 'SGN',
-      name: 'Tân Sơn Nhất',
-      city: 'Hồ Chí Minh',
+      name: 'Sân bay Tân Sơn Nhất',
+      cityName: 'Hồ Chí Minh',
       country: 'Việt Nam',
-      popular: true,
-      domestic: true,
-      international: false,
+      type: 'airport',
+      isPopular: true
+    },
+    {
+      code: 'HAN',
+      name: 'Sân bay Nội Bài',
+      cityName: 'Hà Nội',
+      country: 'Việt Nam',
+      type: 'airport',
+      isPopular: true
+    },
+    {
+      code: 'DAD',
+      name: 'Sân bay Đà Nẵng',
+      cityName: 'Đà Nẵng',
+      country: 'Việt Nam',
+      type: 'airport',
+      isPopular: true
+    },
+    {
+      code: 'PQC',
+      name: 'Sân bay Phú Quốc',
+      cityName: 'Phú Quốc',
+      country: 'Việt Nam',
+      type: 'airport',
+      isPopular: true
+    },
+    {
+      code: 'CXR',
+      name: 'Sân bay Cam Ranh',
+      cityName: 'Nha Trang',
+      country: 'Việt Nam',
+      type: 'airport',
+      isPopular: true
+    },
+    {
+      code: 'BKK',
+      name: 'Sân bay Suvarnabhumi',
+      cityName: 'Bangkok',
+      country: 'Thái Lan',
+      type: 'airport',
+      isPopular: true
+    },
+    {
+      code: 'SIN',
+      name: 'Sân bay Changi',
+      cityName: 'Singapore',
+      country: 'Singapore',
+      type: 'airport',
+      isPopular: true
+    },
+    {
+      code: 'ICN',
+      name: 'Sân bay Incheon',
+      cityName: 'Seoul',
+      country: 'Hàn Quốc',
+      type: 'airport',
+      isPopular: true
+    },
+    {
+      code: 'NRT',
+      name: 'Sân bay Narita',
+      cityName: 'Tokyo',
+      country: 'Nhật Bản',
+      type: 'airport',
+      isPopular: true
+    },
+    {
+      code: 'HKG',
+      name: 'Sân bay Quốc tế Hồng Kông',
+      cityName: 'Hồng Kông',
+      country: 'Hồng Kông',
+      type: 'airport',
+      isPopular: true
+    }
+  ];
+  
+  // City data
+  cities: CityLocation[] = [
+    {
+      code: 'SGN',
+      name: 'Hồ Chí Minh',
+      country: 'Việt Nam',
+      type: 'city',
+      isPopular: true
+    },
+    {
+      code: 'HAN',
+      name: 'Hà Nội',
+      country: 'Việt Nam',
+      type: 'city',
+      isPopular: true
     },
     {
       code: 'DAD',
       name: 'Đà Nẵng',
-      city: 'Đà Nẵng',
       country: 'Việt Nam',
-      popular: true,
-      domestic: true,
-      international: false,
-    },
-    {
-      code: 'CXR',
-      name: 'Cam Ranh',
-      city: 'Nha Trang',
-      country: 'Việt Nam',
-      popular: true,
-      domestic: true,
-      international: false,
-    },
-    {
-      code: 'PQC',
-      name: 'Phú Quốc',
-      city: 'Phú Quốc',
-      country: 'Việt Nam',
-      popular: true,
-      domestic: true,
-      international: false,
-    },
-    {
-      code: 'VCA',
-      name: 'Cần Thơ',
-      city: 'Cần Thơ',
-      country: 'Việt Nam',
-      popular: true,
-      domestic: true,
-      international: false,
-    },
-    {
-      code: 'HUI',
-      name: 'Phú Bài',
-      city: 'Huế',
-      country: 'Việt Nam',
-      popular: true,
-      domestic: true,
-      international: false,
-    },
-    {
-      code: 'BKK',
-      name: 'Suvarnabhumi',
-      city: 'Bangkok',
-      country: 'Thái Lan',
-      popular: true,
-      domestic: false,
-      international: true,
-    },
-    {
-      code: 'SIN',
-      name: 'Changi',
-      city: 'Singapore',
-      country: 'Singapore',
-      popular: true,
-      domestic: false,
-      international: true,
-    },
-    {
-      code: 'ICN',
-      name: 'Incheon',
-      city: 'Seoul',
-      country: 'Hàn Quốc',
-      popular: true,
-      domestic: false,
-      international: true,
-    },
-    {
-      code: 'NRT',
-      name: 'Narita',
-      city: 'Tokyo',
-      country: 'Nhật Bản',
-      popular: true,
-      domestic: false,
-      international: true,
-    },
-    {
-      code: 'KUL',
-      name: 'Kuala Lumpur',
-      city: 'Kuala Lumpur',
-      country: 'Malaysia',
-      popular: false,
-      domestic: false,
-      international: true,
-    },
-    {
-      code: 'HKG',
-      name: 'Hong Kong',
-      city: 'Hong Kong',
-      country: 'Hong Kong',
-      popular: false,
-      domestic: false,
-      international: true,
-    },
-    {
-      code: 'TPE',
-      name: 'Taipei',
-      city: 'Taipei',
-      country: 'Đài Loan',
-      popular: false,
-      domestic: false,
-      international: true,
-    },
-    {
-      code: 'SYD',
-      name: 'Sydney',
-      city: 'Sydney',
-      country: 'Úc',
-      popular: false,
-      domestic: false,
-      international: true,
-    },
-    {
-      code: 'MEL',
-      name: 'Melbourne',
-      city: 'Melbourne',
-      country: 'Úc',
-      popular: false,
-      domestic: false,
-      international: true,
-    },
-    {
-      code: 'LHR',
-      name: 'London',
-      city: 'London',
-      country: 'Anh',
-      popular: false,
-      domestic: false,
-      international: true,
-    },
-    {
-      code: 'CDG',
-      name: 'Paris',
-      city: 'Paris',
-      country: 'Pháp',
-      popular: false,
-      domestic: false,
-      international: true,
-    },
-    {
-      code: 'FRA',
-      name: 'Frankfurt',
-      city: 'Frankfurt',
-      country: 'Đức',
-      popular: false,
-      domestic: false,
-      international: true,
-    },
-    {
-      code: 'JFK',
-      name: 'New York',
-      city: 'New York',
-      country: 'Mỹ',
-      popular: false,
-      domestic: false,
-      international: true,
-    },
-    {
-      code: 'LAX',
-      name: 'Los Angeles',
-      city: 'Los Angeles',
-      country: 'Mỹ',
-      popular: false,
-      domestic: false,
-      international: true,
-    },
-    {
-      code: 'SFO',
-      name: 'San Francisco',
-      city: 'San Francisco',
-      country: 'Mỹ',
-      popular: false,
-      domestic: false,
-      international: true,
-    },
+      type: 'city',
+      isPopular: true
+    }
   ];
-
-  // Seat classes
-  seatClasses = [
-    { value: 'economy', display: 'Phổ thông' },
-    { value: 'premium', display: 'Phổ thông đặc biệt' },
-    { value: 'business', display: 'Thương gia' },
-    { value: 'first', display: 'Hạng nhất' },
-  ];
-
-  private animationFrameId: number | null = null;
-  private lastUpdateTime = 0;
-  private readonly ROTATION_INTERVAL = 30000; // 30 seconds
-
-  readonly backgrounds = [
-    'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=1920&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1503221043305-f7498f8b7888?q=80&w=1920&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=1920&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=1920&auto=format&fit=crop',
-  ];
-
+  
+  private swiperInstance: Swiper | null = null;
   private isBrowser: boolean;
-  private swiper: Swiper | undefined;
-
-  // Location selector
-  isLocationSelectorVisible = false;
-  locationSelectorType: 'origin' | 'destination' = 'origin';
-  locationSearchText = '';
-  filteredAirports: Airport[] = [];
-  activeLocationTab: 'popular' | 'all' | 'domestic' | 'international' =
-    'popular';
-
-  // Click outside directive to close dropdowns
-  clickOutsideListener: any;
 
   constructor(
     private fb: FormBuilder,
-    @Inject(PLATFORM_ID) platformId: Object,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {
-    this.isBrowser = isPlatformBrowser(platformId);
+    this.isBrowser = isPlatformBrowser(this.platformId);
+  }
+
+  ngOnInit(): void {
+    this.initSearchForm();
+    
+    if (this.isBrowser) {
+      this.initSwiper();
+    }
+    
+    // Initialize filtered locations
+    this.filteredLocations = [...this.airports, ...this.cities]
+      .filter(location => location.isPopular)
+      .sort((a, b) => a.name.localeCompare(b.name));
+    
+    // Check for query params to pre-fill the form
+    this.route.queryParams.subscribe(params => {
+      if (params['origin']) {
+        this.searchForm.get('origin')?.setValue(params['origin']);
+      }
+      if (params['destination']) {
+        this.searchForm.get('destination')?.setValue(params['destination']);
+      }
+    });
+    
+    // Add click outside handler only in browser environment
+    if (this.isBrowser) {
+      document.addEventListener('click', this.handleDocumentClick.bind(this));
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.isBrowser) {
+      // Clean up Swiper
+      if (this.swiperInstance) {
+        this.swiperInstance.destroy();
+        this.swiperInstance = null;
+      }
+      
+      // Remove event listeners
+      document.removeEventListener('click', this.handleDocumentClick.bind(this));
+    }
+  }
+  
+  // Handle document clicks for dropdown closing
+  private handleDocumentClick(event: MouseEvent): void {
+    // Already handled in HostListener
+  }
+
+  initSearchForm(): void {
     this.searchForm = this.fb.group({
       tripType: ['roundtrip', Validators.required],
       origin: ['', Validators.required],
       destination: ['', Validators.required],
-      departDate: [new Date(), Validators.required],
-      returnDate: [
-        {
-          value: new Date(new Date().setDate(new Date().getDate() + 7)),
-          disabled: false,
-        },
-      ],
-      adults: [1, [Validators.required, Validators.min(1), Validators.max(9)]],
-      children: [
-        0,
-        [Validators.required, Validators.min(0), Validators.max(9)],
-      ],
-      infants: [0, [Validators.required, Validators.min(0), Validators.max(4)]],
+      departDate: [null, Validators.required],
+      returnDate: [null],
       seatClass: ['economy', Validators.required],
       promoCode: [''],
-      flexibleDates: [false],
+      // Create nested form groups for each passenger type
+      adults: this.fb.group({
+        count: [1, [Validators.required, Validators.min(1), Validators.max(9)]]
+      }),
+      children: this.fb.group({
+        count: [0, [Validators.required, Validators.min(0), Validators.max(8)]]
+      }),
+      infants: this.fb.group({
+        count: [0, [Validators.required, Validators.min(0), Validators.max(4)]]
+      })
     });
-
-    // Set validators conditionally for return date based on trip type
-    this.setTripType('roundtrip');
+    
+    // Add validator for return date when trip type is roundtrip
+    this.searchForm.get('tripType')?.valueChanges.subscribe(tripType => {
+      const returnDateControl = this.searchForm.get('returnDate');
+      if (tripType === 'roundtrip') {
+        returnDateControl?.setValidators([Validators.required]);
+      } else {
+        returnDateControl?.clearValidators();
+        returnDateControl?.setValue(null);
+      }
+      returnDateControl?.updateValueAndValidity();
+    });
   }
 
-  ngOnInit() {
-    if (this.isBrowser) {
-      this.startBackgroundRotation();
-
-      // Listen for trip type changes to update form
-      this.searchForm.get('tripType')?.valueChanges.subscribe((value) => {
-        this.handleTripTypeChange(value);
-      });
-
-      // Add listener for departDate changes to update returnDate min value
-      this.searchForm.get('departDate')?.valueChanges.subscribe((value) => {
-        // If departDate is after returnDate, update returnDate
-        const returnDateControl = this.searchForm.get('returnDate');
-        const returnDate = returnDateControl?.value;
-        if (returnDate && value && new Date(value) > new Date(returnDate)) {
-          returnDateControl?.setValue(value);
+  initSwiper(): void {
+    if (!this.isBrowser) return;
+    
+    // Wait for DOM to be ready
+    setTimeout(() => {
+      const swiperElement = document.querySelector('.banner-swiper');
+      if (!swiperElement) return;
+      
+      this.swiperInstance = new Swiper('.banner-swiper', {
+        modules: [Navigation, Pagination, Autoplay, EffectFade],
+        slidesPerView: 1,
+        speed: 1000,
+        loop: true,
+        effect: 'fade',
+        autoplay: {
+          delay: 5000,
+          disableOnInteraction: false
+        },
+        pagination: {
+          el: '.dynamic-pagination',
+          clickable: true,
+          renderBullet: function(index, className) {
+            return `<span class="${className}"></span>`;
+          }
         }
       });
-
-      // Close passenger dropdown when clicking outside
-      document.addEventListener('click', this.handleOutsideClick.bind(this));
-
-      // Initialize filtered airports
-      this.filterAirports();
-    }
+    }, 100);
   }
 
-  ngAfterViewInit() {
-    if (this.isBrowser) {
-      this.initSwiper();
-    }
-  }
-
-  ngOnDestroy() {
-    if (this.isBrowser) {
-      if (this.animationFrameId) {
-        cancelAnimationFrame(this.animationFrameId);
-        this.animationFrameId = null;
-      }
-
-      // Destroy swiper if exists
-      if (this.swiper) {
-        this.swiper.destroy();
-      }
-
-      // Remove event listener on destroy
-      document.removeEventListener('click', this.handleOutsideClick.bind(this));
-    }
-  }
-
-  /**
-   * Handles clicks outside the dropdowns to close them
-   */
-  handleOutsideClick(event: MouseEvent) {
-    if (!this.isBrowser) return;
-
-    // Handle passenger dropdown
-    const passengerDropdown = document.querySelector('.passenger-menu');
-    const passengerButton = document.querySelector('.passenger-btn');
-
-    if (
-      this.isPassengerDropdownOpen &&
-      passengerDropdown &&
-      passengerButton &&
-      !passengerDropdown.contains(event.target as Node) &&
-      !passengerButton.contains(event.target as Node)
-    ) {
-      this.isPassengerDropdownOpen = false;
-    }
-
-    // Handle seat class dropdown
-    const seatClassDropdown = document.querySelector(
-      '.seat-class-menu'
-    );
-    const seatClassButton = document.querySelector('.selector-item:first-child');
-
-    if (
-      this.isSeatClassDropdownOpen &&
-      seatClassDropdown &&
-      seatClassButton &&
-      !seatClassDropdown.contains(event.target as Node) &&
-      !seatClassButton.contains(event.target as Node)
-    ) {
-      this.isSeatClassDropdownOpen = false;
-    }
-  }
-
-  /**
-   * Toggle passenger dropdown visibility
-   */
-  togglePassengerDropdown(event?: Event) {
-    if (event) {
-      event.stopPropagation();
-    }
-    this.isPassengerDropdownOpen = !this.isPassengerDropdownOpen;
-    this.isSeatClassDropdownOpen = false;
-    
-    if (this.isPassengerDropdownOpen) {
-      setTimeout(() => this.positionDropdown('passenger'), 0);
-    }
-  }
-
-  /**
-   * Toggle seat class dropdown visibility
-   */
-  toggleSeatClassDropdown() {
-    this.isSeatClassDropdownOpen = !this.isSeatClassDropdownOpen;
-    this.isPassengerDropdownOpen = false;
-    
-    if (this.isSeatClassDropdownOpen) {
-      setTimeout(() => this.positionDropdown('seat-class'), 0);
-    }
-  }
-
-  /**
-   * Toggle promo code field visibility
-   */
-  togglePromoCodeField() {
-    this.isPromoCodeVisible = !this.isPromoCodeVisible;
-  }
-
-  private startBackgroundRotation() {
-    if (!this.isBrowser) return;
-
-    const animate = (timestamp: number) => {
-      if (timestamp - this.lastUpdateTime >= this.ROTATION_INTERVAL) {
-        if (!document.hidden) {
-          this.currentBackgroundIndex.update((current) =>
-            current === this.backgrounds.length - 1 ? 0 : current + 1
-          );
-        }
-        this.lastUpdateTime = timestamp;
-      }
-      this.animationFrameId = requestAnimationFrame(animate);
-    };
-
-    this.animationFrameId = requestAnimationFrame(animate);
-  }
-
-  getCurrentBackground() {
-    return this.backgrounds[this.currentBackgroundIndex()];
-  }
-
-  setTripType(type: 'oneway' | 'roundtrip') {
+  // Trip type methods
+  setTripType(type: string): void {
     this.searchForm.get('tripType')?.setValue(type);
-    this.handleTripTypeChange(type);
   }
 
-  handleTripTypeChange(type: string) {
-    if (type === 'roundtrip') {
-      this.searchForm.get('returnDate')?.enable();
-
-      // When enabling returnDate, make sure it's not before departDate
-      const departDate = this.searchForm.get('departDate')?.value;
-      const returnDate = this.searchForm.get('returnDate')?.value;
-
-      if (
-        departDate &&
-        returnDate &&
-        new Date(departDate) > new Date(returnDate)
-      ) {
-        this.searchForm.get('returnDate')?.setValue(departDate);
-      }
-    } else {
-      this.searchForm.get('returnDate')?.disable();
+  // Seat class methods
+  toggleSeatClassDropdown(): void {
+    this.isSeatClassDropdownVisible = !this.isSeatClassDropdownVisible;
+    if (this.isSeatClassDropdownVisible) {
+      this.isPassengerDropdownVisible = false;
     }
   }
 
-  getFormattedAirport(airport: Airport | string | null): string {
-    if (!airport) return '';
-
-    if (typeof airport === 'string') {
-      const found = this.airports.find((a) => a.code === airport);
-      if (found) {
-        return `${found.city} (${found.code})`;
-      }
-      return airport;
-    }
-
-    return `${airport.city} (${airport.code})`;
+  selectSeatClass(seatClass: string): void {
+    this.searchForm.get('seatClass')?.setValue(seatClass);
   }
 
-  displayAirport(airport: Airport | string | null): string {
-    if (!airport) return '';
-
-    if (typeof airport === 'string') {
-      const found = this.airports.find((a) => a.code === airport);
-      if (found) {
-        return `${found.city} (${found.code})`;
-      }
-      return airport;
-    }
-
-    return `${airport.city} (${airport.code})`;
+  getSeatClassDisplay(): string {
+    const seatClass = this.searchForm.get('seatClass')?.value;
+    const option = this.seatClassOptions.find(opt => opt.value === seatClass);
+    return option ? option.label : 'Hạng ghế';
   }
 
-  swapLocations() {
-    const origin = this.searchForm.get('origin')?.value;
-    const destination = this.searchForm.get('destination')?.value;
-
-    this.searchForm.patchValue({
-      origin: destination,
-      destination: origin,
-    });
-  }
-
-  increasePassenger(type: 'adults' | 'children' | 'infants') {
-    const control = this.searchForm.get(type);
-    if (!control) return;
-
-    const currentValue = control.value;
-
-    if (type === 'adults' && currentValue < 9) {
-      control.setValue(currentValue + 1);
-    } else if (type === 'children' && currentValue < 9) {
-      control.setValue(currentValue + 1);
-    } else if (type === 'infants') {
-      const adultsValue = this.searchForm.get('adults')?.value || 1;
-      if (currentValue < 4 && currentValue < adultsValue) {
-        control.setValue(currentValue + 1);
-      }
-    }
-  }
-
-  decreasePassenger(type: 'adults' | 'children' | 'infants') {
-    const control = this.searchForm.get(type);
-    if (!control) return;
-
-    const currentValue = control.value;
-
-    if (type === 'adults' && currentValue > 1) {
-      const newValue = currentValue - 1;
-      control.setValue(newValue);
-
-      // Adjust infants if needed
-      const infantsControl = this.searchForm.get('infants');
-      if (infantsControl && infantsControl.value > newValue) {
-        infantsControl.setValue(newValue);
-      }
-    } else if (type === 'children' && currentValue > 0) {
-      control.setValue(currentValue - 1);
-    } else if (type === 'infants' && currentValue > 0) {
-      control.setValue(currentValue - 1);
+  // Passenger methods
+  togglePassengerDropdown(event: Event): void {
+    event.stopPropagation();
+    this.isPassengerDropdownVisible = !this.isPassengerDropdownVisible;
+    if (this.isPassengerDropdownVisible) {
+      this.isSeatClassDropdownVisible = false;
     }
   }
 
   getPassengerSummary(): string {
-    const adults = this.searchForm.get('adults')?.value || 1;
-    const children = this.searchForm.get('children')?.value || 0;
-    const infants = this.searchForm.get('infants')?.value || 0;
-
-    const totalPassengers = adults + children + infants;
-    let summary = `${totalPassengers} Hành khách`;
-
-    // Add details if there are children or infants
-    if (children > 0 || infants > 0) {
-      let details = [];
-      details.push(`${adults} người lớn`);
-      if (children > 0) details.push(`${children} trẻ em`);
-      if (infants > 0) details.push(`${infants} em bé`);
-      summary += ` (${details.join(', ')})`;
-    }
-
-    return `${summary}`;
+    const adults = this.searchForm.get('adults.count')?.value || 0;
+    const children = this.searchForm.get('children.count')?.value || 0;
+    const infants = this.searchForm.get('infants.count')?.value || 0;
+    const total = adults + children + infants;
+    
+    return `${total} hành khách`;
   }
 
-  searchFlights() {
-    if (this.searchForm.valid) {
-      const formData = this.searchForm.value;
-      
-      // Navigate to flight listing page with search parameters
-      this.router.navigate(['/flight-listing'], {
-        queryParams: {
-          origin: formData.origin,
-          destination: formData.destination,
-          departDate: this.formatDate(formData.departDate),
-          returnDate: formData.tripType === 'roundtrip' ? this.formatDate(formData.returnDate) : null,
-          adults: this.adultCount(),
-          children: this.childCount(),
-          infants: this.infantCount(),
-          cabinClass: formData.seatClass,
-          tripType: formData.tripType,
-          flexibleDates: formData.flexibleDates || false
-        }
-      });
+  increasePassenger(type: string): void {
+    const control = this.searchForm.get(type)?.get('count');
+    if (control) {
+      const currentValue = control.value || 0;
+      control.setValue(currentValue + 1);
     }
   }
-  
-  private formatDate(date: Date): string {
-    if (!date) return '';
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+
+  decreasePassenger(type: string): void {
+    const control = this.searchForm.get(type)?.get('count');
+    if (control) {
+      const currentValue = control.value || 0;
+      if (currentValue > 0 && (type !== 'adults' || currentValue > 1)) {
+        control.setValue(currentValue - 1);
+      }
+    }
   }
 
-  private initSwiper() {
-    // Khởi tạo Swiper với các thông số cơ bản
-    this.swiper = new Swiper('.banner-swiper', {
-      modules: [Pagination, Autoplay, EffectFade],
-      slidesPerView: 1,
-      loop: true,
-      effect: 'fade',
-      fadeEffect: {
-        crossFade: true,
-      },
-      autoplay: {
-        delay: 5000,
-        disableOnInteraction: false,
-      },
-      pagination: {
-        el: '.dynamic-pagination',
-        clickable: true,
-      },
-    });
+  getPassengerCount(type: string): number {
+    return this.searchForm.get(type)?.get('count')?.value || 0;
   }
 
-  /**
-   * Set selected seat class
-   */
-  selectSeatClass(value: string) {
-    this.searchForm.get('seatClass')?.setValue(value);
-    this.isSeatClassDropdownOpen = false;
-  }
-
-  /**
-   * Get the display text for the selected seat class
-   */
-  getSeatClassDisplay(): string {
-    const currentClass = this.searchForm.get('seatClass')?.value;
-    const selectedClass = this.seatClasses.find(
-      (c) => c.value === currentClass
-    );
-    return selectedClass ? selectedClass.display : 'Phổ thông';
-  }
-
-  /**
-   * Get total number of passengers
-   */
   getTotalPassengers(): number {
-    return (
-      this.searchForm.get('adults')?.value +
-      this.searchForm.get('children')?.value +
-      this.searchForm.get('infants')?.value
-    );
+    return this.passengerTypes.reduce((total, type) => {
+      const count = this.getPassengerCount(type.key);
+      return total + count;
+    }, 0);
   }
 
-  /**
-   * Set quick search parameters
-   */
-  setQuickSearch(origin: string, destination: string, event: Event) {
-    event.preventDefault();
-
-    this.searchForm.patchValue({
-      origin: origin,
-      destination: destination,
-      departDate: new Date(new Date().setDate(new Date().getDate() + 7)),
-      returnDate: new Date(new Date().setDate(new Date().getDate() + 14)),
-      tripType: 'roundtrip',
-    });
-
-    this.handleTripTypeChange('roundtrip');
-
-    // Scroll to the search form
-    const searchContainer = document.querySelector('.search-container');
-    if (searchContainer) {
-      searchContainer.scrollIntoView({ behavior: 'smooth' });
-    }
+  // Promo code methods
+  togglePromoCodeField(): void {
+    this.isPromoCodeVisible = !this.isPromoCodeVisible;
   }
 
   // Location selector methods
-  openLocationSelector(type: 'origin' | 'destination') {
-    this.locationSelectorType = type;
+  openLocationSelector(type: string): void {
+    this.currentLocationInput = type;
     this.isLocationSelectorVisible = true;
-    this.locationSearchText = '';
-    this.setLocationTab('popular');
-
-    // Close other dropdowns
-    this.isSeatClassDropdownOpen = false;
-    this.isPassengerDropdownOpen = false;
+    this.locationSearchQuery = '';
+    this.filterLocations();
   }
 
-  closeLocationSelector() {
+  closeLocationSelector(): void {
     this.isLocationSelectorVisible = false;
   }
 
-  filterAirports() {
-    let filtered: Airport[];
+  setLocationTab(tab: string): void {
+    this.activeLocationTab = tab;
+    this.filterLocations();
+  }
 
-    // First filter based on active tab
-    if (this.activeLocationTab === 'popular') {
-      filtered = this.airports.filter((airport) => airport.popular);
-    } else if (this.activeLocationTab === 'domestic') {
-      filtered = this.airports.filter((airport) => airport.domestic);
-    } else if (this.activeLocationTab === 'international') {
-      filtered = this.airports.filter((airport) => airport.international);
-    } else {
-      filtered = [...this.airports];
-    }
-
-    // Then filter based on search text
-    if (this.locationSearchText) {
-      const searchText = this.locationSearchText.toLowerCase();
-      filtered = filtered.filter(
-        (airport) =>
-          airport.code.toLowerCase().includes(searchText) ||
-          airport.city.toLowerCase().includes(searchText) ||
-          airport.name.toLowerCase().includes(searchText) ||
-          airport.country.toLowerCase().includes(searchText)
+  filterLocations(): void {
+    let allLocations: (AirportLocation | CityLocation)[] = [...this.airports, ...this.cities];
+    
+    // Filter by search query
+    if (this.locationSearchQuery.trim()) {
+      const query = this.locationSearchQuery.toLowerCase();
+      allLocations = allLocations.filter(location => 
+        location.name.toLowerCase().includes(query) || 
+        location.code.toLowerCase().includes(query) ||
+        ('cityName' in location && location.cityName.toLowerCase().includes(query)) ||
+        location.country.toLowerCase().includes(query)
       );
     }
-
-    // Exclude current selected location in the other field
-    const otherField =
-      this.locationSelectorType === 'origin' ? 'destination' : 'origin';
-    const otherLocation = this.searchForm.get(otherField)?.value;
-
-    if (otherLocation) {
-      filtered = filtered.filter((airport) => airport.code !== otherLocation);
+    
+    // Filter by tab
+    if (this.activeLocationTab === 'popular') {
+      allLocations = allLocations.filter(location => location.isPopular);
     }
-
-    this.filteredAirports = filtered;
+    
+    this.filteredLocations = allLocations;
   }
 
-  clearSearch() {
-    this.locationSearchText = '';
-    this.filterAirports();
-  }
-
-  setLocationTab(tab: 'popular' | 'all' | 'domestic' | 'international') {
-    this.activeLocationTab = tab;
-    this.filterAirports();
-  }
-
-  selectAirport(code: string) {
-    this.searchForm.get(this.locationSelectorType)?.setValue(code);
+  selectLocation(location: AirportLocation | CityLocation): void {
+    this.searchForm.get(this.currentLocationInput)?.setValue(location.code);
     this.closeLocationSelector();
   }
 
-  /**
-   * Get the display name for the airport based on its code
-   */
-  getAirportDisplayName(code: string): string {
-    const airport = this.airports.find((a) => a.code === code);
-    return airport ? `${airport.name}, ${airport.city}` : code;
-  }
-
-  positionDropdown(type: 'passenger' | 'seat-class') {
-    if (!this.isBrowser) return;
+  getAirportDisplayName(field: string): string {
+    const code = this.searchForm.get(field)?.value;
+    if (!code) return '';
     
-    const triggerElement = type === 'passenger' 
-      ? document.querySelector('.passenger-btn') 
-      : document.querySelector('.selector-item:not(.passenger-btn)');
-      
-    const dropdownElement = type === 'passenger'
-      ? document.querySelector('.dropdown-menu.passenger-menu')
-      : document.querySelector('.dropdown-menu.seat-class-menu');
-      
-    if (!triggerElement || !dropdownElement) return;
-    
-    const triggerRect = triggerElement.getBoundingClientRect();
-    const dropdownRect = dropdownElement.getBoundingClientRect();
-    
-    // Calculate position
-    let top = triggerRect.top - dropdownRect.height - 10; // Position above button by default
-    const left = triggerRect.left + triggerRect.width - dropdownRect.width;
-    
-    // If dropdown would go off the top of the screen, position it below the button
-    if (top < 10) {
-      top = triggerRect.bottom + 10;
+    const airport = this.airports.find(a => a.code === code);
+    if (airport) {
+      return `${airport.cityName} (${airport.code})`;
     }
     
-    // Apply position to dropdown
-    (dropdownElement as HTMLElement).style.top = `${top}px`;
-    (dropdownElement as HTMLElement).style.left = `${left}px`;
+    const city = this.cities.find(c => c.code === code);
+    if (city) {
+      return `${city.name} (${city.code})`;
+    }
+    
+    return code;
+  }
+
+  // Flight search form methods
+  swapLocations(): void {
+    const origin = this.searchForm.get('origin')?.value;
+    const destination = this.searchForm.get('destination')?.value;
+    
+    this.searchForm.get('origin')?.setValue(destination);
+    this.searchForm.get('destination')?.setValue(origin);
+  }
+
+  getMinReturnDate(): Date {
+    const departDate = this.searchForm.get('departDate')?.value;
+    return departDate || this.today;
+  }
+
+  searchFlights(): void {
+    if (this.searchForm.valid) {
+      const queryParams: SearchQueryParams = {
+        tripType: this.searchForm.get('tripType')?.value,
+        origin: this.searchForm.get('origin')?.value,
+        destination: this.searchForm.get('destination')?.value,
+        departDate: this.formatDate(this.searchForm.get('departDate')?.value),
+        seatClass: this.searchForm.get('seatClass')?.value,
+        adults: this.searchForm.get('adults.count')?.value,
+        children: this.searchForm.get('children.count')?.value,
+        infants: this.searchForm.get('infants.count')?.value,
+      };
+      
+      if (this.searchForm.get('tripType')?.value === 'roundtrip') {
+        queryParams.returnDate = this.formatDate(this.searchForm.get('returnDate')?.value);
+      }
+      
+      if (this.searchForm.get('promoCode')?.value) {
+        queryParams.promoCode = this.searchForm.get('promoCode')?.value;
+      }
+      
+      this.router.navigate(['/flight-search/results'], { queryParams });
+    }
+  }
+
+  // Type guards
+  isAirportLocation(location: AirportLocation | CityLocation): location is AirportLocation {
+    return location.type === 'airport';
+  }
+
+  // Helper methods
+  formatDate(date: Date): string {
+    if (!date) return '';
+    return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+  }
+
+  // Click outside to close dropdowns
+  @HostListener('document:click', ['$event'])
+  closeDropdowns(event: MouseEvent): void {
+    if (!this.isBrowser) return;
+    
+    // Ignore clicks inside dropdowns
+    const target = event.target as HTMLElement;
+    const isInsideDropdown = 
+      target.closest('.dropdown-panel') || 
+      target.closest('.form-control-wrapper');
+    
+    if (!isInsideDropdown) {
+      this.isSeatClassDropdownVisible = false;
+      this.isPassengerDropdownVisible = false;
+    }
   }
 }

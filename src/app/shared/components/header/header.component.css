@@ -1,0 +1,20 @@
+/* Styles for the dropdown menu in mobile view */
+@media (max-width: 768px) {
+  .dropdown-menu-right {
+    position: fixed !important;
+    z-index: 99 !important;
+  }
+  
+  .user-dropdown.active {
+    z-index: 9995 !important;
+  }
+  
+  /* Hide header dropdowns when mobile menu is active */
+  .mobile-menu.active ~ * .user-dropdown,
+  .mobile-menu.active + * .user-dropdown {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+} 

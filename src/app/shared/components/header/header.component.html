@@ -1,84 +1,295 @@
 <header class="header">
-  <!-- Mobile Navigation -->
-  <app-mobile-nav class="mobile-only"></app-mobile-nav>
-  
-  <div class="header-content desktop-only">
+  <!-- Desktop Header -->
+  <div class="header-main glass-card desktop-only">
     <div class="container">
-      <div class="header-inner">
-        <div class="logo">
-          <a routerLink="/">
+      <div class="header-wrapper">
+        <div class="lowebbanve-go-ctainer">
+          <a routerLink="/" aria-label="Home">
             <img
-              src="assets/images/logo/webbanve-logo.png"
-              alt="WebBanVe Logo"
+              src="assets/images/logo/logo-1.png"
+              alt="Flight Booking Logo"
+              class="logo-img"
+              width="42"
+              height="42"
             />
           </a>
         </div>
 
-        <div class="navigation">
-          <nav>
-            <ul class="nav-menu">
-              <li class="nav-item dropdown">
-                <a class="nav-link" routerLink="/flight-search" routerLinkActive="active">Vé máy bay</a>
-                <div class="dropdown-content">
-                  <a routerLink="/flight-listing" routerLinkActive="active">Danh sách chuyến bay</a>
-                  <a routerLink="/flights" routerLinkActive="active">Thông tin chuyến bay</a>
-                </div>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" routerLink="/tours" routerLinkActive="active">Tour du lịch</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" routerLink="/hotels" routerLinkActive="active">Khách sạn</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" routerLink="/news" routerLinkActive="active">Tin tức</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" routerLink="/promotions" routerLinkActive="active">Khuyến mãi</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" routerLink="/frequent-flyer" routerLinkActive="active">VIP</a>
-              </li>
-            </ul>
-          </nav>
-        </div>
+        <nav class="main-navigation">
+          <ul class="nav-list">
+            <li class="nav-item">
+              <div class="nav-link-container">
+                <a
+                  class="nav-link"
+                  routerLink="/flight-search"
+                  routerLinkActive="active"
+                >
+                  <i class="bi bi-airplane"></i> Vé máy bay
+                </a>
+                <button class="dropdown-toggle" (click)="toggleSubMenu($event)">
+                  <i class="bi bi-chevron-down"></i>
+                </button>
+              </div>
+              <div class="submenu glass-card">
+                <a
+                  class="submenu-link"
+                  routerLink="/flight-listing"
+                  routerLinkActive="active"
+                >
+                  <i class="bi bi-list-ul"></i> Danh sách chuyến bay
+                </a>
+                <a
+                  class="submenu-link"
+                  routerLink="/flights"
+                  routerLinkActive="active"
+                >
+                  <i class="bi bi-info-circle"></i> Thông tin chuyến bay
+                </a>
+              </div>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" routerLink="/tours" routerLinkActive="active">
+                <i class="bi bi-globe"></i> Tour du lịch
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                routerLink="/hotels"
+                routerLinkActive="active"
+              >
+                <i class="bi bi-building"></i> Khách sạn
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" routerLink="/news" routerLinkActive="active">
+                <i class="bi bi-newspaper"></i> Tin tức
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                routerLink="/promotions"
+                routerLinkActive="active"
+              >
+                <i class="bi bi-tag"></i> Khuyến mãi
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                routerLink="/frequent-flyer"
+                routerLinkActive="active"
+              >
+                <i class="bi bi-star"></i> VIP
+              </a>
+            </li>
+          </ul>
+        </nav>
 
-        <div class="auth-actions">
+        <div class="auth-container">
           @if (!isLoggedIn()) {
-            <a class="btn btn-login" routerLink="/auth/login" routerLinkActive="active">Đăng nhập</a>
-            <a class="btn btn-register" routerLink="/auth/register" routerLinkActive="active">Đăng ký</a>
+          <a
+            class="btn btn-outline-primary btn-rounded"
+            routerLink="/auth/login"
+          >
+            <i class="bi bi-box-arrow-in-right"></i> Đăng nhập
+          </a>
+          <a class="btn btn-accent btn-rounded" routerLink="/auth/register">
+            <i class="bi bi-person-plus"></i> Đăng ký
+          </a>
           } @else {
-            <a class="btn btn-profile" routerLink="/profile" routerLinkActive="active">Tài khoản</a>
-            <button class="btn btn-logout" (click)="logout()">Đăng xuất</button>
-          }
-        </div>
-
-        <div class="contact-info">
-          <div class="contact-item">
-            <div class="hotline">
-              Hotline: <span class="phone-number">0123 456 789</span>
-            </div>
-            <div class="working-hours">
-              Giờ làm việc: <span class="hours">Từ 8h - 22h</span>
+          <div class="user-menu">
+            <button class="user-menu-trigger" (click)="toggleUserMenu($event)">
+              <div class="user-avatar">
+                <i class="bi bi-person-circle"></i>
+              </div>
+              <span class="user-name">{{ userName }}</span>
+              <i class="bi bi-chevron-down"></i>
+            </button>
+            <div
+              class="user-dropdown glass-card"
+              [class.active]="activeDropdown() === 'userMenu'"
+            >
+              <div class="user-info">
+                <div class="user-avatar-large">
+                  <i class="bi bi-person-circle"></i>
+                </div>
+                <div class="user-details">
+                  <h6 class="mb-1">{{ userName }}</h6>
+                  <p class="text-muted mb-0 small">{{ userEmail }}</p>
+                </div>
+              </div>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" routerLink="/profile">
+                <i class="bi bi-person"></i> Thông tin cá nhân
+              </a>
+              <a class="dropdown-item" routerLink="/booking">
+                <i class="bi bi-ticket-perforated"></i> Đặt chỗ của tôi
+              </a>
+              <a class="dropdown-item" routerLink="/frequent-flyer">
+                <i class="bi bi-star"></i> Thành viên VIP
+              </a>
+              <div class="dropdown-divider"></div>
+              <button class="dropdown-item text-danger" (click)="logout()">
+                <i class="bi bi-box-arrow-right"></i> Đăng xuất
+              </button>
             </div>
           </div>
+          }
         </div>
       </div>
     </div>
   </div>
-  
+
   <!-- Mobile Header -->
-  <div class="header-content-mobile mobile-only">
+  <div class="mobile-header mobile-only">
     <div class="container">
-      <div class="header-inner-mobile">
-        <div class="logo">
-          <a routerLink="/">
+      <div class="mobile-header-wrapper">
+        <button
+          class="mobile-menu-toggle"
+          (click)="toggleMobileMenu()"
+          aria-label="Toggle menu"
+        >
+          <i
+            class="bi"
+            [class.bi-list]="!isMobileMenuOpen()"
+            [class.bi-x-lg]="isMobileMenuOpen()"
+          ></i>
+        </button>
+
+        <div class="mobile-logo">
+          <a routerLink="/" aria-label="Home">
             <img
-              src="assets/images/logo/webbanve-logo.png"
-              alt="WebBanVe Logo"
+              src="assets/images/logo/logo-1.png"
+              alt="Flight Booking Logo"
+              class="logo-img"
+              width="36"
+              height="36"
             />
           </a>
         </div>
+
+        <div class="mobile-actions">
+          @if (isLoggedIn()) {
+          <button
+            class="avatar-button"
+            (click)="toggleUserMenu($event)"
+            aria-label="User menu"
+          >
+            <i class="bi bi-person-circle"></i>
+          </button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Menu Drawer -->
+  <div class="mobile-menu-drawer" [class.active]="isMobileMenuOpen()">
+    <div class="mobile-menu-content">
+      <div class="mobile-user-info" *ngIf="isLoggedIn()">
+        <div class="mobile-user-avatar">
+          <i class="bi bi-person-circle"></i>
+        </div>
+        <div class="mobile-user-details">
+          <h6 class="user-name">{{ userName }}</h6>
+          <p class="user-email">{{ userEmail }}</p>
+        </div>
+      </div>
+
+      <div class="mobile-auth-buttons" *ngIf="!isLoggedIn()">
+        <a class="btn btn-outline-primary btn-block" routerLink="/auth/login">
+          <i class="bi bi-box-arrow-in-right"></i> Đăng nhập
+        </a>
+        <a class="btn btn-accent btn-block" routerLink="/auth/register">
+          <i class="bi bi-person-plus"></i> Đăng ký
+        </a>
+      </div>
+
+      <nav class="mobile-navigation">
+        <div class="mobile-nav-group">
+          <div class="mobile-nav-item">
+            <a
+              class="mobile-nav-link"
+              routerLink="/flight-search"
+              routerLinkActive="active"
+            >
+              <i class="bi bi-airplane"></i> Vé máy bay
+            </a>
+            <button
+              class="mobile-dropdown-toggle"
+              (click)="toggleMobileSubMenu($event)"
+            >
+              <i class="bi bi-chevron-down"></i>
+            </button>
+          </div>
+          <div class="mobile-submenu">
+            <a
+              class="mobile-submenu-link"
+              routerLink="/flight-listing"
+              routerLinkActive="active"
+            >
+              <i class="bi bi-list-ul"></i> Danh sách chuyến bay
+            </a>
+            <a
+              class="mobile-submenu-link"
+              routerLink="/flights"
+              routerLinkActive="active"
+            >
+              <i class="bi bi-info-circle"></i> Thông tin chuyến bay
+            </a>
+          </div>
+        </div>
+
+        <a
+          class="mobile-nav-link"
+          routerLink="/tours"
+          routerLinkActive="active"
+        >
+          <i class="bi bi-globe"></i> Tour du lịch
+        </a>
+
+        <a
+          class="mobile-nav-link"
+          routerLink="/hotels"
+          routerLinkActive="active"
+        >
+          <i class="bi bi-building"></i> Khách sạn
+        </a>
+
+        <a class="mobile-nav-link" routerLink="/news" routerLinkActive="active">
+          <i class="bi bi-newspaper"></i> Tin tức
+        </a>
+
+        <a
+          class="mobile-nav-link"
+          routerLink="/promotions"
+          routerLinkActive="active"
+        >
+          <i class="bi bi-tag"></i> Khuyến mãi
+        </a>
+
+        <a
+          class="mobile-nav-link"
+          routerLink="/frequent-flyer"
+          routerLinkActive="active"
+        >
+          <i class="bi bi-star"></i> Thành viên VIP
+        </a>
+      </nav>
+
+      <div class="mobile-user-actions" *ngIf="isLoggedIn()">
+        <div class="divider"></div>
+        <a class="mobile-user-action" routerLink="/profile">
+          <i class="bi bi-person"></i> Thông tin cá nhân
+        </a>
+        <a class="mobile-user-action" routerLink="/booking">
+          <i class="bi bi-ticket-perforated"></i> Đặt chỗ của tôi
+        </a>
+        <button class="mobile-user-action text-danger" (click)="logout()">
+          <i class="bi bi-box-arrow-right"></i> Đăng xuất
+        </button>
       </div>
     </div>
   </div>
