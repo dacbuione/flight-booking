@@ -1,4 +1,5 @@
 @use '@angular/material' as mat;
+@use 'sass:color';
 
 /* Swiper CSS */
 @import 'swiper/css';
@@ -185,8 +186,8 @@ a {
   border-color: var(--secondary-color);
 
   &:hover, &:focus, &:active {
-    background-color: darken(#7DA2FF, 10%);
-    border-color: darken(#7DA2FF, 10%);
+    background-color: color.adjust(#7DA2FF, $lightness: -10%);
+    border-color: color.adjust(#7DA2FF, $lightness: -10%);
   }
 }
 

@@ -80,8 +80,6 @@ interface FAQ {
     RouterLink,
     NgbDropdownModule,
     NgbAccordionModule,
-    DatePipe,
-    TitleCasePipe,
     HeroComponent,
   ],
   standalone: true,
