@@ -1,186 +1,163 @@
-import { Component, OnInit, inject, signal, DestroyRef, PLATFORM_ID, Inject, HostListener } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, OnInit, HostListener } from '@angular/core';
+import { Router, NavigationEnd, RouterModule } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { AuthService } from '../../../core/services/auth.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { User } from '../../../core/models/user.model';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-header',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterLink,
-    RouterLinkActive
-  ],
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss']
+  styleUrls: ['./header.component.scss'],
+  standalone: true,
+  imports: [RouterModule, CommonModule]
 })
 export class HeaderComponent implements OnInit {
-  private router = inject(Router);
-  private authService = inject(AuthService);
-  private destroyRef = inject(DestroyRef);
-  private isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  isScrolled = false;
+  isMobileMenuOpen = false;
+  isUserMenuOpen = false;
+  activeSubmenuId: string | null = null;
+  currentRoute = '';
   
-  isLoggedIn = signal(false);
-  isMobileMenuOpen = signal(false);
-  userName = signal('');
-  userEmail = signal('');
-  activeDropdown = signal<string | null>(null);
-  
-  constructor() {
-    // Get auth state from AuthService
-    this.authService.isAuthenticated$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(isAuthenticated => {
-        this.isLoggedIn.set(isAuthenticated);
-        
-        if (isAuthenticated) {
-          this.loadUserData();
-        }
-      });
-  }
-  
+  // User data
+  isLoggedIn = false;
+  currentUser: User | null = null;
+
+  navigationItems = [
+    {
+      id: 'flights',
+      icon: 'fa-solid fa-plane-departure',
+      title: 'Flights',
+      hasSubmenu: true,
+      links: [
+        { icon: 'fa-solid fa-magnifying-glass', title: 'Find Flights', route: '/flights' },
+        { icon: 'fa-solid fa-calendar-days', title: 'Flight Schedule', route: '/schedule' },
+        { icon: 'fa-solid fa-ticket', title: 'Booking Status', route: '/booking-status' },
+        { icon: 'fa-solid fa-check-to-slot', title: 'Check-in Online', route: '/check-in' }
+      ]
+    },
+    {
+      id: 'tours',
+      icon: 'fa-solid fa-map-location-dot',
+      title: 'Tours & Activities',
+      hasSubmenu: true,
+      links: [
+        { icon: 'fa-solid fa-mountain-sun', title: 'Adventure Tours', route: '/tours/adventure' },
+        { icon: 'fa-solid fa-landmark', title: 'Cultural Experiences', route: '/tours/cultural' },
+        { icon: 'fa-solid fa-umbrella-beach', title: 'Beach Getaways', route: '/tours/beach' },
+        { icon: 'fa-solid fa-utensils', title: 'Food & Culinary', route: '/tours/culinary' }
+      ]
+    },
+    {
+      id: 'hotels',
+      icon: 'fa-solid fa-hotel',
+      title: 'Hotels',
+      hasSubmenu: true,
+      links: [
+        { icon: 'fa-solid fa-bed', title: 'Find Hotels', route: '/hotels' },
+        { icon: 'fa-solid fa-star', title: 'Luxury Stays', route: '/hotels/luxury' },
+        { icon: 'fa-solid fa-percent', title: 'Deals & Promotions', route: '/hotels/deals' },
+        { icon: 'fa-solid fa-key', title: 'Manage Booking', route: '/hotels/manage' }
+      ]
+    },
+    {
+      id: 'news',
+      icon: 'fa-solid fa-newspaper',
+      title: 'News & Blog',
+      route: '/blog',
+      hasSubmenu: false
+    },
+    {
+      id: 'promotions',
+      icon: 'fa-solid fa-gift',
+      title: 'Promotions',
+      route: '/promotions',
+      hasSubmenu: false
+    }
+  ];
+
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) { }
+
   ngOnInit(): void {
-    // Close mobile menu when route changes
-    this.router.events
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.isMobileMenuOpen.set(false);
-      });
-      
-    // Add scroll event listener to handle header styles on scroll only in browser environment
-    if (this.isBrowser) {
-      window.addEventListener('scroll', this.handleScroll.bind(this));
-    }
-  }
-  
-  toggleMobileMenu(): void {
-    this.isMobileMenuOpen.update(value => !value);
+    // Track current route
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: any) => {
+      this.currentRoute = event.url;
+      // Close mobile menu when navigating
+      this.isMobileMenuOpen = false;
+    });
     
-    // Prevent body scrolling when mobile menu is open - only in browser environment
-    if (this.isBrowser) {
-      if (this.isMobileMenuOpen()) {
-        document.body.style.overflow = 'hidden';
-      } else {
-        document.body.style.overflow = '';
-      }
-    }
-  }
-  
-  toggleSubMenu(event: Event): void {
-    event.preventDefault();
-    event.stopPropagation();
+    // Check login status from auth service
+    this.authService.isAuthenticated$.subscribe((loggedIn: boolean) => {
+      this.isLoggedIn = loggedIn;
+    });
     
-    if (!this.isBrowser) return;
-    
-    const target = event.currentTarget as HTMLElement;
-    const parentItem = target.closest('.nav-item');
-    const submenu = parentItem?.querySelector('.submenu');
-    
-    if (submenu) {
-      submenu.classList.toggle('active');
-    }
-    
-    // Close other submenus
-    const allSubmenus = document.querySelectorAll('.submenu.active');
-    allSubmenus.forEach(menu => {
-      if (menu !== submenu) {
-        menu.classList.remove('active');
-      }
+    // Get user details if logged in
+    this.authService.currentUser$.subscribe((user: User | null) => {
+      this.currentUser = user;
     });
   }
-  
-  toggleMobileSubMenu(event: Event): void {
-    event.preventDefault();
-    event.stopPropagation();
-    
-    if (!this.isBrowser) return;
-    
-    const target = event.currentTarget as HTMLElement;
-    const parentItem = target.closest('.mobile-nav-item');
-    const submenu = parentItem?.nextElementSibling;
-    
-    if (submenu && submenu.classList.contains('mobile-submenu')) {
-      submenu.classList.toggle('active');
-      target.querySelector('i')?.classList.toggle('rotate');
-    }
+
+  @HostListener('window:scroll', [])
+  onWindowScroll() {
+    this.isScrolled = window.scrollY > 20;
   }
-  
-  toggleUserMenu(event: Event): void {
-    event.preventDefault();
-    event.stopPropagation();
+
+  toggleMobileMenu(): void {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+    // Close any open submenu when toggling the mobile menu
+    this.activeSubmenuId = null;
     
-    if (!this.isBrowser) return;
-    
-    if (this.activeDropdown() === 'userMenu') {
-      this.activeDropdown.set(null);
+    // Prevent body scrolling when menu is open
+    if (this.isMobileMenuOpen) {
+      document.body.classList.add('no-scroll');
     } else {
-      this.activeDropdown.set('userMenu');
-      // Close any open mobile menu if open
-      this.isMobileMenuOpen.set(false);
+      document.body.classList.remove('no-scroll');
     }
   }
   
-  handleScroll(): void {
-    if (!this.isBrowser) return;
-    
-    const header = document.querySelector('.header-main');
-    if (window.scrollY > 50) {
-      header?.classList.add('header-scrolled');
-    } else {
-      header?.classList.remove('header-scrolled');
-    }
+  toggleUserMenu(): void {
+    this.isUserMenuOpen = !this.isUserMenuOpen;
+  }
+
+  toggleSubmenu(id: string): void {
+    this.activeSubmenuId = this.activeSubmenuId === id ? null : id;
   }
   
-  loadUserData(): void {
-    // Get user data from auth service
-    this.authService.currentUser$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((user: User | null) => {
-        if (user) {
-          this.userName.set(user.firstName || 'User');
-          this.userEmail.set(user.email || '');
-        }
-      });
+  isSubmenuActive(id: string): boolean {
+    return this.activeSubmenuId === id;
+  }
+  
+  isRouteActive(route: string): boolean {
+    return this.currentRoute === route;
+  }
+  
+  getUserDisplayName(): string {
+    if (!this.currentUser) return 'User';
+    return this.currentUser.firstName || this.currentUser.email.split('@')[0];
+  }
+  
+  getUserEmail(): string {
+    return this.currentUser?.email || '';
+  }
+  
+  login(): void {
+    this.router.navigate(['/auth/login']);
+    this.isMobileMenuOpen = false;
+  }
+  
+  register(): void {
+    this.router.navigate(['/auth/register']);
+    this.isMobileMenuOpen = false;
   }
   
   logout(): void {
     this.authService.logout();
-    this.router.navigate(['/']);
-  }
-  
-  // Add this method to close all menus
-  closeAllMenus(): void {
-    if (!this.isBrowser) return;
-    
-    this.activeDropdown.set(null);
-    this.isMobileMenuOpen.set(false);
-    
-    if (document.body.style.overflow === 'hidden') {
-      document.body.style.overflow = '';
-    }
-  }
-  
-  // Listen for clicks on document to close dropdowns
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    if (!this.isBrowser) return;
-    
-    const target = event.target as HTMLElement;
-    
-    // Skip if clicking inside any dropdown or dropdown toggle
-    if (
-      target.closest('.dropdown-toggle') ||
-      target.closest('.dropdown-panel') ||
-      target.closest('.avatar-button') ||
-      target.closest('.user-dropdown') ||
-      target.closest('.mobile-menu-toggle') ||
-      target.closest('.mobile-menu-content')
-    ) {
-      return;
-    }
-    
-    this.closeAllMenus();
+    this.isUserMenuOpen = false;
+    this.isMobileMenuOpen = false;
   }
 } 

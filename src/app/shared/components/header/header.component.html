@@ -1,296 +1,277 @@
 <header class="header">
   <!-- Desktop Header -->
-  <div class="header-main glass-card desktop-only">
-    <div class="container">
-      <div class="header-wrapper">
-        <div class="lowebbanve-go-ctainer">
-          <a routerLink="/" aria-label="Home">
-            <img
-              src="assets/images/logo/logo-1.png"
-              alt="Flight Booking Logo"
-              class="logo-img"
-              width="42"
-              height="42"
-            />
-          </a>
-        </div>
-
-        <nav class="main-navigation">
-          <ul class="nav-list">
-            <li class="nav-item">
-              <div class="nav-link-container">
-                <a
-                  class="nav-link"
-                  routerLink="/flight-search"
-                  routerLinkActive="active"
-                >
-                  <i class="bi bi-airplane"></i> Vé máy bay
-                </a>
-                <button class="dropdown-toggle" (click)="toggleSubMenu($event)">
-                  <i class="bi bi-chevron-down"></i>
-                </button>
-              </div>
-              <div class="submenu glass-card">
-                <a
-                  class="submenu-link"
-                  routerLink="/flight-listing"
-                  routerLinkActive="active"
-                >
-                  <i class="bi bi-list-ul"></i> Danh sách chuyến bay
-                </a>
-                <a
-                  class="submenu-link"
-                  routerLink="/flights"
-                  routerLinkActive="active"
-                >
-                  <i class="bi bi-info-circle"></i> Thông tin chuyến bay
-                </a>
-              </div>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" routerLink="/tours" routerLinkActive="active">
-                <i class="bi bi-globe"></i> Tour du lịch
-              </a>
-            </li>
-            <li class="nav-item">
-              <a
-                class="nav-link"
-                routerLink="/hotels"
-                routerLinkActive="active"
-              >
-                <i class="bi bi-building"></i> Khách sạn
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" routerLink="/news" routerLinkActive="active">
-                <i class="bi bi-newspaper"></i> Tin tức
-              </a>
-            </li>
-            <li class="nav-item">
-              <a
-                class="nav-link"
-                routerLink="/promotions"
-                routerLinkActive="active"
-              >
-                <i class="bi bi-tag"></i> Khuyến mãi
-              </a>
-            </li>
-            <li class="nav-item">
-              <a
-                class="nav-link"
-                routerLink="/frequent-flyer"
-                routerLinkActive="active"
-              >
-                <i class="bi bi-star"></i> VIP
-              </a>
-            </li>
-          </ul>
-        </nav>
-
-        <div class="auth-container">
-          @if (!isLoggedIn()) {
-          <a
-            class="btn btn-outline-primary btn-rounded"
-            routerLink="/auth/login"
-          >
-            <i class="bi bi-box-arrow-in-right"></i> Đăng nhập
-          </a>
-          <a class="btn btn-accent btn-rounded" routerLink="/auth/register">
-            <i class="bi bi-person-plus"></i> Đăng ký
-          </a>
-          } @else {
-          <div class="user-menu">
-            <button class="user-menu-trigger" (click)="toggleUserMenu($event)">
-              <div class="user-avatar">
-                <i class="bi bi-person-circle"></i>
-              </div>
-              <span class="user-name">{{ userName }}</span>
-              <i class="bi bi-chevron-down"></i>
-            </button>
-            <div
-              class="user-dropdown glass-card"
-              [class.active]="activeDropdown() === 'userMenu'"
-            >
-              <div class="user-info">
-                <div class="user-avatar-large">
-                  <i class="bi bi-person-circle"></i>
-                </div>
-                <div class="user-details">
-                  <h6 class="mb-1">{{ userName }}</h6>
-                  <p class="text-muted mb-0 small">{{ userEmail }}</p>
-                </div>
-              </div>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item" routerLink="/profile">
-                <i class="bi bi-person"></i> Thông tin cá nhân
-              </a>
-              <a class="dropdown-item" routerLink="/booking">
-                <i class="bi bi-ticket-perforated"></i> Đặt chỗ của tôi
-              </a>
-              <a class="dropdown-item" routerLink="/frequent-flyer">
-                <i class="bi bi-star"></i> Thành viên VIP
-              </a>
-              <div class="dropdown-divider"></div>
-              <button class="dropdown-item text-danger" (click)="logout()">
-                <i class="bi bi-box-arrow-right"></i> Đăng xuất
-              </button>
+  <div class="header-desktop desktop-only" [class.header-scrolled]="isScrolled">
+    <div class="top-info-bar">
+      <div class="container">
+        <div class="top-bar-content">
+          <div class="contact-info">
+            <div class="contact-item">
+              <i class="fa-solid fa-phone"></i>
+              <span>Call Us: <strong>1-800-FLIGHTS</strong></span>
+            </div>
+            <div class="contact-item">
+              <i class="fa-solid fa-envelope"></i>
+              <span>Email: <strong>support@skytravel.com</strong></span>
             </div>
           </div>
-          }
+          <div class="quick-links">
+            <a routerLink="/help" class="quick-link">
+              <i class="fa-solid fa-circle-info"></i>
+              <span>Help & Support</span>
+            </a>
+            <a routerLink="/about" class="quick-link">
+              <i class="fa-solid fa-building"></i>
+              <span>About Us</span>
+            </a>
+            <a routerLink="/contact" class="quick-link">
+              <i class="fa-solid fa-envelope"></i>
+              <span>Contact</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="main-navbar">
+      <div class="container">
+        <div class="navbar-content">
+          <div class="logo-container">
+            <a routerLink="/">
+              <img src="assets/images/logo.png" alt="SkyTravel Logo" class="logo">
+              <div class="logo-text">Sky<span class="text-primary">Travel</span></div>
+            </a>
+          </div>
+          
+          <nav class="main-nav">
+            <ul class="nav-list">
+              <li class="nav-item" *ngFor="let item of navigationItems">
+                <ng-container *ngIf="item.hasSubmenu; else simpleLink">
+                  <a class="nav-link" [class.active]="isSubmenuActive(item.id)" (click)="toggleSubmenu(item.id)">
+                    <i [class]="item.icon"></i>
+                    <span>{{ item.title }}</span>
+                    <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
+                  </a>
+                  
+                  <div class="dropdown-content">
+                    <a *ngFor="let link of item.links" 
+                       [routerLink]="link.route" 
+                       [class.active]="isRouteActive(link.route)">
+                      <i [class]="link.icon"></i>
+                      <span>{{ link.title }}</span>
+                    </a>
+                  </div>
+                </ng-container>
+                
+                <ng-template #simpleLink>
+                  <a class="nav-link" [routerLink]="item.route" [class.active]="isRouteActive(item.route)">
+                    <i [class]="item.icon"></i>
+                    <span>{{ item.title }}</span>
+                  </a>
+                </ng-template>
+              </li>
+            </ul>
+          </nav>
+          
+          <div class="auth-actions">
+            <ng-container *ngIf="!isLoggedIn">
+              <a routerLink="/auth/login" class="btn btn-outline-primary">
+                <i class="fa-solid fa-right-to-bracket"></i>
+                <span>Log In</span>
+              </a>
+              <a routerLink="/auth/register" class="btn btn-primary">
+                <i class="fa-solid fa-user-plus"></i>
+                <span>Register</span>
+              </a>
+            </ng-container>
+            
+            <div class="user-profile-menu" *ngIf="isLoggedIn">
+              <button class="profile-toggle" (click)="toggleUserMenu()">
+                <div class="avatar">
+                  <i class="fa-solid fa-user"></i>
+                </div>
+                <span class="user-name">{{ getUserDisplayName() }}</span>
+                <i class="fa-solid fa-chevron-down"></i>
+              </button>
+              
+              <div class="dropdown-menu" [class.active]="isUserMenuOpen">
+                <div class="user-info">
+                  <div class="avatar-large">
+                    <i class="fa-solid fa-user"></i>
+                  </div>
+                  <div class="user-details">
+                    <h6>{{ getUserDisplayName() }}</h6>
+                    <p>{{ getUserEmail() }}</p>
+                  </div>
+                </div>
+                
+                <div class="menu-items">
+                  <a routerLink="/profile" class="menu-item">
+                    <i class="fa-solid fa-user-circle"></i>
+                    <span>My Profile</span>
+                  </a>
+                  <a routerLink="/bookings" class="menu-item">
+                    <i class="fa-solid fa-ticket"></i>
+                    <span>My Bookings</span>
+                  </a>
+                  <a routerLink="/settings" class="menu-item">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Account Settings</span>
+                  </a>
+                  <div class="divider"></div>
+                  <button class="menu-item logout" (click)="logout()">
+                    <i class="fa-solid fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-
+  
   <!-- Mobile Header -->
-  <div class="mobile-header mobile-only">
-    <div class="container">
-      <div class="mobile-header-wrapper">
-        <button
-          class="mobile-menu-toggle"
-          (click)="toggleMobileMenu()"
-          aria-label="Toggle menu"
-        >
-          <i
-            class="bi"
-            [class.bi-list]="!isMobileMenuOpen()"
-            [class.bi-x-lg]="isMobileMenuOpen()"
-          ></i>
-        </button>
-
-        <div class="mobile-logo">
-          <a routerLink="/" aria-label="Home">
-            <img
-              src="assets/images/logo/logo-1.png"
-              alt="Flight Booking Logo"
-              class="logo-img"
-              width="36"
-              height="36"
-            />
+  <div class="header-mobile mobile-only" [class.header-scrolled]="isScrolled">
+    <div class="mobile-navbar">
+      <div class="container">
+        <div class="mobile-navbar-content">
+          <button class="menu-toggle" (click)="toggleMobileMenu()">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          
+          <div class="logo-container">
+            <a routerLink="/">
+              <img src="assets/images/logo.png" alt="SkyTravel Logo" class="logo">
+            </a>
+          </div>
+          
+          <div class="mobile-actions">
+            <a routerLink="/bookings" class="action-button" *ngIf="isLoggedIn">
+              <i class="fa-solid fa-ticket"></i>
+            </a>
+            <a routerLink="/auth/login" class="action-button" *ngIf="!isLoggedIn">
+              <i class="fa-solid fa-user"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Mobile Menu Drawer -->
+  <div class="mobile-menu-drawer" [class.active]="isMobileMenuOpen">
+    <div class="menu-drawer-content">
+      <div class="user-section">
+        <div class="logged-in-user" *ngIf="isLoggedIn">
+          <div class="user-avatar">
+            <i class="fa-solid fa-user"></i>
+          </div>
+          <div class="user-info">
+            <p class="username">{{ getUserDisplayName() }}</p>
+            <p class="email">{{ getUserEmail() }}</p>
+          </div>
+        </div>
+        
+        <div class="login-buttons" *ngIf="!isLoggedIn">
+          <a routerLink="/auth/login" class="btn btn-outline-light">
+            <i class="fa-solid fa-right-to-bracket"></i>
+            <span>Log In</span>
+          </a>
+          <a routerLink="/auth/register" class="btn btn-primary">
+            <i class="fa-solid fa-user-plus"></i>
+            <span>Register</span>
           </a>
         </div>
-
-        <div class="mobile-actions">
-          @if (isLoggedIn()) {
-          <button
-            class="avatar-button"
-            (click)="toggleUserMenu($event)"
-            aria-label="User menu"
-          >
-            <i class="bi bi-person-circle"></i>
-          </button>
-          }
-        </div>
       </div>
-    </div>
-  </div>
-
-  <!-- Mobile Menu Drawer -->
-  <div class="mobile-menu-drawer" [class.active]="isMobileMenuOpen()">
-    <div class="mobile-menu-content">
-      <div class="mobile-user-info" *ngIf="isLoggedIn()">
-        <div class="mobile-user-avatar">
-          <i class="bi bi-person-circle"></i>
-        </div>
-        <div class="mobile-user-details">
-          <h6 class="user-name">{{ userName }}</h6>
-          <p class="user-email">{{ userEmail }}</p>
-        </div>
-      </div>
-
-      <div class="mobile-auth-buttons" *ngIf="!isLoggedIn()">
-        <a class="btn btn-outline-primary btn-block" routerLink="/auth/login">
-          <i class="bi bi-box-arrow-in-right"></i> Đăng nhập
-        </a>
-        <a class="btn btn-accent btn-block" routerLink="/auth/register">
-          <i class="bi bi-person-plus"></i> Đăng ký
-        </a>
-      </div>
-
+      
       <nav class="mobile-navigation">
-        <div class="mobile-nav-group">
-          <div class="mobile-nav-item">
-            <a
-              class="mobile-nav-link"
-              routerLink="/flight-search"
-              routerLinkActive="active"
-            >
-              <i class="bi bi-airplane"></i> Vé máy bay
+        <div *ngFor="let item of navigationItems">
+          <ng-container *ngIf="item.hasSubmenu; else mobileSimpleLink">
+            <div class="nav-group">
+              <div class="nav-item-header">
+                <a class="nav-link" [class.active]="isSubmenuActive(item.id)">
+                  <i [class]="item.icon"></i>
+                  <span>{{ item.title }}</span>
+                </a>
+                <button class="toggle-submenu" (click)="toggleSubmenu(item.id)">
+                  <i class="fa-solid fa-chevron-down" [class.rotate]="isSubmenuActive(item.id)"></i>
+                </button>
+              </div>
+              
+              <div class="submenu" [class.active]="isSubmenuActive(item.id)">
+                <a *ngFor="let link of item.links" 
+                   [routerLink]="link.route" 
+                   [class.active]="isRouteActive(link.route)"
+                   class="submenu-link">
+                  <i [class]="link.icon"></i>
+                  <span>{{ link.title }}</span>
+                </a>
+              </div>
+            </div>
+          </ng-container>
+          
+          <ng-template #mobileSimpleLink>
+            <a class="nav-link" [routerLink]="item.route" [class.active]="isRouteActive(item.route)">
+              <i [class]="item.icon"></i>
+              <span>{{ item.title }}</span>
             </a>
-            <button
-              class="mobile-dropdown-toggle"
-              (click)="toggleMobileSubMenu($event)"
-            >
-              <i class="bi bi-chevron-down"></i>
-            </button>
-          </div>
-          <div class="mobile-submenu">
-            <a
-              class="mobile-submenu-link"
-              routerLink="/flight-listing"
-              routerLinkActive="active"
-            >
-              <i class="bi bi-list-ul"></i> Danh sách chuyến bay
-            </a>
-            <a
-              class="mobile-submenu-link"
-              routerLink="/flights"
-              routerLinkActive="active"
-            >
-              <i class="bi bi-info-circle"></i> Thông tin chuyến bay
-            </a>
-          </div>
+          </ng-template>
         </div>
-
-        <a
-          class="mobile-nav-link"
-          routerLink="/tours"
-          routerLinkActive="active"
-        >
-          <i class="bi bi-globe"></i> Tour du lịch
+        
+        <a routerLink="/help" class="nav-link">
+          <i class="fa-solid fa-circle-info"></i>
+          <span>Help & Support</span>
         </a>
-
-        <a
-          class="mobile-nav-link"
-          routerLink="/hotels"
-          routerLinkActive="active"
-        >
-          <i class="bi bi-building"></i> Khách sạn
+        <a routerLink="/about" class="nav-link">
+          <i class="fa-solid fa-building"></i>
+          <span>About Us</span>
         </a>
-
-        <a class="mobile-nav-link" routerLink="/news" routerLinkActive="active">
-          <i class="bi bi-newspaper"></i> Tin tức
-        </a>
-
-        <a
-          class="mobile-nav-link"
-          routerLink="/promotions"
-          routerLinkActive="active"
-        >
-          <i class="bi bi-tag"></i> Khuyến mãi
-        </a>
-
-        <a
-          class="mobile-nav-link"
-          routerLink="/frequent-flyer"
-          routerLinkActive="active"
-        >
-          <i class="bi bi-star"></i> Thành viên VIP
+        <a routerLink="/contact" class="nav-link">
+          <i class="fa-solid fa-envelope"></i>
+          <span>Contact Us</span>
         </a>
       </nav>
-
-      <div class="mobile-user-actions" *ngIf="isLoggedIn()">
+      
+      <div class="user-actions" *ngIf="isLoggedIn">
         <div class="divider"></div>
-        <a class="mobile-user-action" routerLink="/profile">
-          <i class="bi bi-person"></i> Thông tin cá nhân
+        <a routerLink="/profile" class="user-action">
+          <i class="fa-solid fa-user-circle"></i>
+          <span>My Profile</span>
         </a>
-        <a class="mobile-user-action" routerLink="/booking">
-          <i class="bi bi-ticket-perforated"></i> Đặt chỗ của tôi
+        <a routerLink="/bookings" class="user-action">
+          <i class="fa-solid fa-ticket"></i>
+          <span>My Bookings</span>
         </a>
-        <button class="mobile-user-action text-danger" (click)="logout()">
-          <i class="bi bi-box-arrow-right"></i> Đăng xuất
+        <a routerLink="/settings" class="user-action">
+          <i class="fa-solid fa-gear"></i>
+          <span>Account Settings</span>
+        </a>
+        <div class="divider"></div>
+        <button class="user-action logout" (click)="logout()">
+          <i class="fa-solid fa-sign-out-alt"></i>
+          <span>Logout</span>
         </button>
       </div>
+      
+      <div class="contact-section">
+        <div class="contact-item">
+          <i class="fa-solid fa-phone"></i>
+          <div>
+            <label>Call Us</label>
+            <span>1-800-FLIGHTS</span>
+          </div>
+        </div>
+        <div class="contact-item">
+          <i class="fa-solid fa-envelope"></i>
+          <div>
+            <label>Email Us</label>
+            <span>support@skytravel.com</span>
+          </div>
+        </div>
+      </div>
     </div>
+    
+    <div class="menu-backdrop" (click)="toggleMobileMenu()"></div>
   </div>
 </header>
