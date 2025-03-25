@@ -1,27 +1,28 @@
-@use '@angular/material' as mat;
-@use 'sass:color';
+@use "@angular/material" as mat;
+@use "sass:color";
 
 /* Swiper CSS */
-@import 'swiper/css';
-@import 'swiper/css/navigation';
-@import 'swiper/css/pagination';
-@import 'swiper/css/autoplay';
+@use "swiper/css" as *;
+@use "swiper/css/navigation" as *;
+@use "swiper/css/pagination" as *;
+@use "swiper/css/autoplay" as *;
 
 /* Custom Variables */
-$primary: #0F294D;
-$secondary: #7DA2FF;
+$primary: #0f294d;
+$secondary: #7da2ff;
 $success: #198754;
 $info: #0dcaf0;
 $warning: #ffc107;
 $danger: #dc3545;
-$light: #F8F9FA;
+$light: #f8f9fa;
 $dark: #212529;
 
 /* Bootstrap */
-@import "bootstrap/scss/bootstrap";
+@use "bootstrap/scss/bootstrap" as bootstrap;
+
 
 /* Bootstrap Icons */
-@import "bootstrap-icons/font/bootstrap-icons.css";
+@use "bootstrap-icons/font/bootstrap-icons.css" as *;
 
 // Include the common styles for Angular Material
 @include mat.core();
@@ -33,7 +34,7 @@ $primary-palette: (
   200: #90caf9,
   300: #64b5f6,
   400: #42a5f5,
-  500: #1976D2,
+  500: #1976d2,
   600: #1e88e5,
   700: #1976d2,
   800: #1565c0,
@@ -49,28 +50,29 @@ $primary-palette: (
     700: white,
     800: white,
     900: white,
-  )
+  ),
 );
 
 // Custom CSS variables
 :root {
-  --primary-color: #0F294D;
-  --secondary-color: #7DA2FF;
-  --accent-color: #FF5722;
-  --light-bg: #F8F9FA;
+  --primary-color: #0f294d;
+  --secondary-color: #7da2ff;
+  --accent-color: #ff5722;
+  --light-bg: #f8f9fa;
   --border-radius: 0.5rem;
   --transition-speed: 0.3s;
   --bs-gray-400: #ced4da;
 }
 
 /* Global Styles */
-html, body { 
+html,
+body {
   height: 100%;
 }
 
 body {
   margin: 0;
-  font-family: 'Inter', 'Roboto', sans-serif;
+  font-family: "Inter", "Roboto", sans-serif;
   background-color: #f5f5f5;
   color: var(--primary-color);
   overflow-x: hidden;
@@ -84,7 +86,7 @@ a {
   text-decoration: none;
   color: var(--primary-color);
   transition: color var(--transition-speed) ease;
-  
+
   &:hover {
     text-decoration: none;
     color: var(--secondary-color);
@@ -93,7 +95,11 @@ a {
 
 /* Utility Classes */
 .bg-gradient-primary {
-  background: linear-gradient(135deg, $primary, darken($primary, 15%));
+  background: linear-gradient(
+    135deg,
+    $primary,
+    color.adjust($primary, $lightness: 10%)
+  );
   color: white;
 }
 
@@ -125,7 +131,7 @@ a {
   border-radius: var(--border-radius);
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  
+
   &:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
@@ -149,17 +155,49 @@ a {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Responsive Font Sizes */
-@include media-breakpoint-down(sm) {
+@include bootstrap.media-breakpoint-down(sm) {
   h1 {
     font-size: 1.8rem;
   }
   h2 {
     font-size: 1.5rem;
+  }
+  h3 {
+    font-size: 1.3rem;
+  }
+  p, .btn, .form-control {
+    font-size: 0.95rem;
+  }
+}
+
+/* Responsive Spacing */
+@include bootstrap.media-breakpoint-down(md) {
+  .container {
+    max-width: 100%;
+    padding: 0 12px;
+  }
+  
+  .row {
+    margin-left: -8px;
+    margin-right: -8px;
+  }
+  
+  [class*="col-"] {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  
+  .card {
+    margin-bottom: 15px;
   }
 }
 
@@ -175,9 +213,11 @@ a {
   background-color: var(--primary-color);
   border-color: var(--primary-color);
 
-  &:hover, &:focus, &:active {
-    background-color: darken(#0F294D, 10%);
-    border-color: darken(#0F294D, 10%);
+  &:hover,
+  &:focus,
+  &:active {
+    background-color: color.adjust(#0f294d, $lightness: 10%);
+    border-color: color.adjust(#0f294d, $lightness: 10%);
   }
 }
 
@@ -185,9 +225,11 @@ a {
   background-color: var(--secondary-color);
   border-color: var(--secondary-color);
 
-  &:hover, &:focus, &:active {
-    background-color: color.adjust(#7DA2FF, $lightness: -10%);
-    border-color: color.adjust(#7DA2FF, $lightness: -10%);
+  &:hover,
+  &:focus,
+  &:active {
+    background-color: color.adjust(#7da2ff, $lightness: -10%);
+    border-color: color.adjust(#7da2ff, $lightness: -10%);
   }
 }
 
@@ -230,9 +272,9 @@ a {
 
 // Custom container
 .container {
-  max-width: 90vw;
+  max-width: 100vw;
   margin: 0 auto;
-  padding: 0 15px;
+  padding: 0 10px;
 }
 
 // Material button overrides
@@ -258,15 +300,15 @@ a {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  
+
   .value {
     display: inline-block;
   }
-  
+
   h1 {
     font-size: 28px;
     font-weight: 600;
-    color: #0F294D;
+    color: #0f294d;
   }
 }
 
@@ -274,7 +316,7 @@ a {
   .partner-reverse {
     flex-direction: column-reverse;
   }
-  
+
   .partner-intro {
     margin-bottom: 20px;
   }
@@ -285,11 +327,11 @@ a {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
-  
+
   @media (max-width: 992px) {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   @media (max-width: 576px) {
     grid-template-columns: 1fr;
   }
@@ -302,7 +344,7 @@ a {
     background-color: rgba(13, 110, 253, 0.05);
     box-shadow: none;
   }
-  
+
   &:focus {
     box-shadow: none;
     border-color: rgba(13, 110, 253, 0.25);
@@ -322,9 +364,16 @@ a {
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
-  
+
   &:hover {
     transform: translateY(-5px);
+  }
+  
+  @media (max-width: 576px) {
+    bottom: 20px;
+    right: 20px;
+    width: 35px;
+    height: 35px;
   }
 }
 
@@ -333,7 +382,7 @@ a {
   background-color: rgba(108, 117, 125, 0.1);
   color: #6c757d;
   border: none;
-  
+
   &:hover {
     background-color: rgba(108, 117, 125, 0.2);
     color: #6c757d;
@@ -344,7 +393,7 @@ a {
 .gif {
   position: relative;
   overflow: hidden;
-  
+
   &::after {
     content: "";
     position: absolute;
@@ -376,12 +425,12 @@ a {
 .rounded-3 {
   border-radius: 0.5rem !important;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  
+
   &:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
   }
-  
+
   a {
     text-decoration: none;
     color: inherit;
@@ -408,25 +457,210 @@ a {
 }
 
 // General helper classes
-.text-white { color: white !important; }
-.text-muted { color: #757575 !important; }
-.fw-medium { font-weight: 500; }
-.bg-light { background-color: var(--light-bg) !important; }
-.shadow-sm { box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important; }
-.mb-4 { margin-bottom: 1.5rem !important; }
-.mb-3 { margin-bottom: 1rem !important; }
-.mb-0 { margin-bottom: 0 !important; }
-.me-2 { margin-right: 0.5rem !important; }
-.ms-2 { margin-left: 0.5rem !important; }
-.mt-3 { margin-top: 1rem !important; }
-.d-flex { display: flex !important; }
-.justify-content-center { justify-content: center !important; }
-.justify-content-between { justify-content: space-between !important; }
-.align-items-center { align-items: center !important; }
-.gap-4 { gap: 1.5rem !important; }
-.w-100 { width: 100% !important; }
-.text-center { text-align: center !important; }
-.h-100 { height: 100% !important; }
-.px-2 { padding-left: 0.5rem !important; padding-right: 0.5rem !important; }
-.g-0 { margin-left: 0; margin-right: 0; }
-.g-0 > .col, .g-0 > [class*="col-"] { padding-left: 0; padding-right: 0; }
+.text-white {
+  color: white !important;
+}
+.text-muted {
+  color: #757575 !important;
+}
+.fw-medium {
+  font-weight: 500;
+}
+.bg-light {
+  background-color: var(--light-bg) !important;
+}
+.shadow-sm {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+.mb-4 {
+  margin-bottom: 1.5rem !important;
+}
+.mb-3 {
+  margin-bottom: 1rem !important;
+}
+.mb-0 {
+  margin-bottom: 0 !important;
+}
+.me-2 {
+  margin-right: 0.5rem !important;
+}
+.ms-2 {
+  margin-left: 0.5rem !important;
+}
+.mt-3 {
+  margin-top: 1rem !important;
+}
+.d-flex {
+  display: flex !important;
+}
+.justify-content-center {
+  justify-content: center !important;
+}
+.justify-content-between {
+  justify-content: space-between !important;
+}
+.align-items-center {
+  align-items: center !important;
+}
+.gap-4 {
+  gap: 1.5rem !important;
+}
+.w-100 {
+  width: 100% !important;
+}
+.text-center {
+  text-align: center !important;
+}
+.h-100 {
+  height: 100% !important;
+}
+.px-2 {
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+}
+.g-0 {
+  margin-left: 0;
+  margin-right: 0;
+}
+.g-0 > .col,
+.g-0 > [class*="col-"] {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+// Mobile specific fixes
+@media (max-width: 576px) {
+  .rounded-3 {
+    &:hover {
+      transform: none;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    }
+  }
+  
+  .card {
+    &:hover {
+      transform: none;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    }
+  }
+  
+  .row > [class*="col-"] {
+    margin-bottom: 15px;
+  }
+  
+  .d-flex {
+    flex-wrap: wrap;
+  }
+  
+  .gap-4 {
+    gap: 1rem !important;
+  }
+  
+  // Dropdown/Modal menu fixes
+  .dropdown-menu, .modal-content {
+    width: 94vw !important;
+    max-width: 94vw;
+    margin: 0 3vw;
+    border-radius: 0.5rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  // Hamburger menu
+  .navbar-collapse {
+    background: white;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 1rem;
+    border-radius: 0 0 0.5rem 0.5rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  // Fix for switch buttons in form
+  .form-switch {
+    padding-left: 2.5em;
+  }
+}
+
+// Fix position for mobile dropdowns
+@media (max-width: 576px) {
+  .dropdown-menu-mobile-full {
+    position: fixed !important;
+    top: auto !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-height: 80vh;
+    overflow-y: auto;
+    margin: 0;
+    border-radius: 1rem 1rem 0 0;
+    box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.15);
+    border: none;
+    padding: 1rem;
+    transform: translateY(0) !important;
+  }
+}
+
+// Improve modal display on mobile
+@media (max-width: 576px) {
+  .modal-dialog {
+    margin: 0.5rem auto;
+    max-width: 94vw;
+  }
+  
+  .modal-content {
+    border-radius: 0.5rem;
+  }
+  
+  .modal-header {
+    padding: 0.75rem 1rem;
+  }
+  
+  .modal-body {
+    padding: 1rem;
+  }
+  
+  .modal-footer {
+    padding: 0.75rem 1rem;
+  }
+}
+
+// Datepicker fixes for mobile
+@media (max-width: 576px) {
+  .mat-datepicker-content {
+    width: 90vw !important;
+    max-width: 90vw !important;
+  }
+  
+  .mat-calendar {
+    width: 100% !important;
+  }
+}
+
+// Fix hamburger button styling
+.navbar-toggler {
+  border: none;
+  padding: 0.5rem;
+  
+  &:focus {
+    box-shadow: none;
+    outline: none;
+  }
+  
+  .navbar-toggler-icon {
+    width: 1.5em;
+    height: 1.5em;
+  }
+}
+
+// Improve responsive table display
+@media (max-width: 768px) {
+  table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}

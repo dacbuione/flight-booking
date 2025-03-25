@@ -6,6 +6,7 @@ import {
   ElementRef,
   signal,
   computed,
+  HostListener,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -92,6 +93,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   infantCount: number = 0;
   flightClass: string = 'economy';
   today = new Date();
+  isButtonVisible = signal(false);
 
   popularDestinations: Destination[] = [
     {
@@ -405,6 +407,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
     }
   }
 
+  @HostListener('window:scroll', ['$event'])
+  onWindowScroll() {
+    this.isButtonVisible.set(window.scrollY > 100);
+  }
+
   initSearchForm(): void {
     this.searchForm = this.fb.group({
       tripType: [this.tripType, Validators.required],
@@ -505,7 +512,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
           grabCursor: true,
           loop: true,
           autoplay: {
-            delay: 2000,
+            delay: 10000,
             disableOnInteraction: false,
           },
           pagination: {

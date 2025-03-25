@@ -34,7 +34,11 @@
             <mat-icon>trending_flat</mat-icon>
             <span>Một chiều</span>
           </div>
-          <div class="tab-item promo-tab" (click)="togglePromoCodeField()">
+          <div
+            class="tab-item promo-tab"
+            [class.active]="isPromoCodeVisible"
+            (click)="togglePromoCodeField()"
+          >
             <mat-icon>local_offer</mat-icon>
             <span>Mã khuyến mãi</span>
           </div>
@@ -330,12 +334,8 @@
   <div
     class="dropdown-item"
     *ngFor="let seatClass of seatClasses"
-    [class.active]="
-      searchForm.get('seatClass')?.value === seatClass.value
-    "
-    (click)="
-      selectSeatClass(seatClass.value); $event.stopPropagation()
-    "
+    [class.active]="searchForm.get('seatClass')?.value === seatClass.value"
+    (click)="selectSeatClass(seatClass.value); $event.stopPropagation()"
   >
     {{ seatClass.display }}
   </div>
@@ -357,22 +357,16 @@
         type="button"
         class="control-btn"
         [disabled]="searchForm.get('adults')?.value <= 1"
-        (click)="
-          decreasePassenger('adults'); $event.stopPropagation()
-        "
+        (click)="decreasePassenger('adults'); $event.stopPropagation()"
       >
         <mat-icon>remove</mat-icon>
       </button>
-      <span class="passenger-count">{{
-        searchForm.get("adults")?.value
-      }}</span>
+      <span class="passenger-count">{{ searchForm.get("adults")?.value }}</span>
       <button
         type="button"
         class="control-btn"
         [disabled]="searchForm.get('adults')?.value >= 9"
-        (click)="
-          increasePassenger('adults'); $event.stopPropagation()
-        "
+        (click)="increasePassenger('adults'); $event.stopPropagation()"
       >
         <mat-icon>add</mat-icon>
       </button>
@@ -390,9 +384,7 @@
         type="button"
         class="control-btn"
         [disabled]="searchForm.get('children')?.value <= 0"
-        (click)="
-          decreasePassenger('children'); $event.stopPropagation()
-        "
+        (click)="decreasePassenger('children'); $event.stopPropagation()"
       >
         <mat-icon>remove</mat-icon>
       </button>
@@ -403,12 +395,9 @@
         type="button"
         class="control-btn"
         [disabled]="
-          getTotalPassengers() >= 9 ||
-          searchForm.get('children')?.value >= 8
+          getTotalPassengers() >= 9 || searchForm.get('children')?.value >= 8
         "
-        (click)="
-          increasePassenger('children'); $event.stopPropagation()
-        "
+        (click)="increasePassenger('children'); $event.stopPropagation()"
       >
         <mat-icon>add</mat-icon>
       </button>
@@ -419,18 +408,14 @@
   <div class="passenger-item">
     <div class="passenger-info">
       <div class="passenger-type">Trẻ sơ sinh</div>
-      <div class="passenger-note">
-        Dưới 2 tuổi (ngồi cùng người lớn)
-      </div>
+      <div class="passenger-note">Dưới 2 tuổi (ngồi cùng người lớn)</div>
     </div>
     <div class="passenger-controls">
       <button
         type="button"
         class="control-btn"
         [disabled]="searchForm.get('infants')?.value <= 0"
-        (click)="
-          decreasePassenger('infants'); $event.stopPropagation()
-        "
+        (click)="decreasePassenger('infants'); $event.stopPropagation()"
       >
         <mat-icon>remove</mat-icon>
       </button>
@@ -441,13 +426,10 @@
         type="button"
         class="control-btn"
         [disabled]="
-          searchForm.get('infants')?.value >=
-            searchForm.get('adults')?.value ||
+          searchForm.get('infants')?.value >= searchForm.get('adults')?.value ||
           searchForm.get('infants')?.value >= 4
         "
-        (click)="
-          increasePassenger('infants'); $event.stopPropagation()
-        "
+        (click)="increasePassenger('infants'); $event.stopPropagation()"
       >
         <mat-icon>add</mat-icon>
       </button>

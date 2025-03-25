@@ -7,6 +7,9 @@
 .hamburger {
   width: 30px;
   height: 24px;
+  top: 20px;
+  left: 10px;
+  position: absolute;
   display: flex;
   flex-direction: column;
   justify-content: space-between;

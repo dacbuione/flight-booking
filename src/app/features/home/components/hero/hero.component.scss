@@ -170,12 +170,10 @@
 
   &:hover {
     color: white;
-    background-color: rgba(255, 255, 255, 0.05);
   }
 
   &.active {
     color: white;
-    background-color: rgba(33, 150, 243, 0.15);
 
     &:after {
       height: 3px;
@@ -253,7 +251,7 @@
   color: #333;
   display: none;
   transform-origin: top center;
-  
+
   &.show {
     display: block;
     animation: fadeInDown 0.3s ease;
@@ -411,6 +409,7 @@
   background: rgba(255, 255, 255, 0.07);
   border-radius: 12px;
   padding: 12px 16px;
+  width: 100%;
 
   mat-icon {
     color: rgba(255, 255, 255, 0.7);
@@ -732,9 +731,17 @@
   }
 
   .dropdown-menu {
-    width: 100%;
+    width: 20%;
     left: 0;
     right: 0;
+
+    &.passenger-menu {
+      max-width: 360px;
+      width: 100%;
+      background-color: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    }
   }
 }
 
@@ -749,6 +756,7 @@
 
   .tab-item {
     font-size: 0.85rem;
+    height: 60px;
   }
 
   .preference-selectors {
@@ -762,6 +770,19 @@
 
     .destination-tags {
       width: 100%;
+    }
+  }
+  .dropdown-menu {
+    width: 20%;
+    left: 0;
+    right: 0;
+
+    &.seat-class-menu {
+      max-width: 200px;
+      width: 100%;
+      background-color: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
     }
   }
 }
