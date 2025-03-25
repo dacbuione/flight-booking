@@ -1,27 +1,206 @@
-.form-floating {
-  margin-bottom: 1.5rem;
+// Variables
+$primary-color: #2563eb;
+$primary-hover: #1d4ed8;
+$secondary-color: #64748b;
+$light-bg: #f8fafc;
+$border-radius: 0.75rem;
+$box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+  0 8px 10px -6px rgba(0, 0, 0, 0.1);
+
+// Login container styling
+.login-container {
+  min-height: calc(100vh - 70px); // Adjusted for navbar height
+  display: flex;
+  align-items: center;
+  background-color: $light-bg;
 }
 
-.btn {
-  padding: 0.75rem 1rem;
-}
-
-.card {
-  border: none;
-  border-radius: 10px;
+// Card styling
+.login-card {
+  border-radius: $border-radius;
+  box-shadow: $box-shadow;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+  }
 }
 
-.card-header {
-  padding: 1.5rem;
+// Left banner with background image
+.login-banner {
+  background: linear-gradient(rgba(37, 99, 235, 0.8), rgba(29, 78, 216, 0.9)), 
+              url('https://images.unsplash.com/photo-1506012787146-f92b2d7d6d96?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8YWlycGxhbmV8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=800&q=60');
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 30% 50%, rgba(29, 78, 216, 0.5), transparent 70%);
+  }
 }
 
-hr {
-  color: rgba(0, 0, 0, 0.1);
+.login-banner-content {
+  position: relative;
+  z-index: 1;
+  padding: 2rem;
+  
+  h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  p {
+    font-size: 1.125rem;
+    opacity: 0.9;
+  }
+}
+
+// Form controls
+.custom-input {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  transition: all 0.3s ease;
+  
+  &:focus {
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+  }
+}
+
+.form-floating > label {
+  padding-left: 1rem;
 }
 
 .form-check-input:checked {
-  background-color: var(--bs-primary);
-  border-color: var(--bs-primary);
+  background-color: $primary-color;
+  border-color: $primary-color;
+}
+
+// Login button
+.login-btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  background-color: $primary-color;
+  border-color: $primary-color;
+  transition: all 0.3s ease;
+  
+  &:hover:not(:disabled) {
+    background-color: $primary-hover;
+    border-color: $primary-hover;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// Social login section
+.social-login-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1.5rem 0;
+  
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  
+  span {
+    margin: 0 1rem;
+    color: $secondary-color;
+    font-size: 0.875rem;
+  }
+}
+
+.social-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.btn-social {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+  font-size: 1.25rem;
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.btn-google {
+  color: #ea4335;
+  
+  &:hover {
+    background-color: rgba(234, 67, 53, 0.1);
+  }
+}
+
+.btn-facebook {
+  color: #1877f2;
+  
+  &:hover {
+    background-color: rgba(24, 119, 242, 0.1);
+  }
+}
+
+.btn-apple {
+  color: #000;
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+}
+
+// Alert styling
+.alert {
+  border-radius: 0.5rem;
+  
+  .btn-close {
+    padding: 1rem;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .login-card {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .login-banner-content {
+    h2 {
+      font-size: 2rem;
+    }
+  }
 } 

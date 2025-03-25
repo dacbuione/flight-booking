@@ -53,4 +53,9 @@ export class LoginComponent implements OnInit {
         }
       });
   }
+  
+  // Phương thức để xóa thông báo lỗi
+  clearErrorMessage(): void {
+    this.errorMessage = '';
+  }
 } 

@@ -64,4 +64,9 @@ export class RegisterComponent implements OnInit {
         }
       });
   }
+  
+  // Phương thức để xóa thông báo lỗi
+  clearErrorMessage(): void {
+    this.errorMessage = '';
+  }
 } 
