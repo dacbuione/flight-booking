@@ -17,7 +17,7 @@ export class PromotionsComponent {
       description: 'Áp dụng cho tất cả các chuyến bay trong nước khi đặt lần đầu qua ứng dụng.',
       code: 'FIRST30',
       expiryDate: '2023-12-31',
-      image: 'assets/images/promo-1.jpg'
+      image: 'https://ibreak2travel.com/wp-content/uploads/2022/10/Aug-Travel-Promotion-discount15_1200x1300-1.jpg'
     },
     {
       id: 2,
@@ -25,7 +25,7 @@ export class PromotionsComponent {
       description: 'Áp dụng cho tất cả chuyến bay quốc tế khi thanh toán bằng thẻ tín dụng.',
       code: 'INTER20',
       expiryDate: '2023-11-30',
-      image: 'assets/images/promo-2.jpg'
+      image: 'https://www.everydayonsales.com/wp-content/uploads/2022/08/Malaysia-Airlines-Travel-To-Japan-Promo.jpg'
     },
     {
       id: 3,
@@ -33,7 +33,7 @@ export class PromotionsComponent {
       description: 'Đặt vé máy bay và khách sạn cùng lúc để nhận ưu đãi đặc biệt này.',
       code: 'HOTEL25',
       expiryDate: '2024-01-15',
-      image: 'assets/images/promo-3.jpg'
+      image: 'https://ik.imagekit.io/tvlk/image/imageResource/2023/05/22/1684730007412-0a8be3f9264041fbdde5198bdb7b689b.webp?tr=q-75'
     }
   ];
 } 

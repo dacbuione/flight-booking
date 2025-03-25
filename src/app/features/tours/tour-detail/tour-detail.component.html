@@ -1,0 +1,776 @@
+<div class="container py-4">
+  <!-- Loading spinner with improved styling -->
+  <div class="text-center py-5" *ngIf="isLoading">
+    <div
+      class="spinner-grow text-primary"
+      role="status"
+      style="width: 3rem; height: 3rem"
+    >
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-3 text-secondary fw-medium">Đang tải thông tin tour...</p>
+  </div>
+
+  <div *ngIf="!isLoading && tour">
+    <!-- Tour header section with improved breadcrumb and styling -->
+    <div class="mb-4">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a routerLink="/" class="text-decoration-none">Trang chủ</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a routerLink="/tours" class="text-decoration-none">Tours</a>
+          </li>
+          <li class="breadcrumb-item active fw-medium" aria-current="page">
+            {{ tour.title }}
+          </li>
+        </ol>
+      </nav>
+      <h1 class="mb-3 display-5 fw-bold">{{ tour.title }}</h1>
+      <div class="d-flex flex-wrap align-items-center mb-3 gap-3">
+        <div class="tour-rating me-2">
+          <i class="bi bi-star-fill"></i> {{ tour.rating }}
+        </div>
+        <div class="me-2 d-flex align-items-center">
+          <i class="bi bi-geo-alt-fill text-primary me-1"></i>
+          <span class="fw-medium">{{ tour.destination }}</span>
+        </div>
+        <div class="d-flex align-items-center">
+          <i class="bi bi-clock-fill text-primary me-1"></i>
+          <span class="fw-medium">{{ tour.duration }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <!-- Left column: Gallery and Tour Info -->
+      <div class="col-lg-8">
+        <!-- Gallery with improved image display and controls -->
+        <div class="card shadow-sm mb-4 gallery-card">
+          <div class="position-relative">
+            <img
+              [src]="getCurrentImage()"
+              class="card-img-top tour-detail-image"
+              [alt]="tour.title"
+              onerror="this.src='https://placehold.co/800x500/e9ecef/495057?text=Image+Unavailable'"
+            />
+            <div class="image-overlay"></div>
+            <button class="gallery-nav gallery-nav-prev" (click)="prevImage()">
+              <i class="bi bi-chevron-left"></i>
+            </button>
+            <button class="gallery-nav gallery-nav-next" (click)="nextImage()">
+              <i class="bi bi-chevron-right"></i>
+            </button>
+            <div class="image-counter">
+              {{ currentImageIndex + 1 }}/{{ tour.gallery?.length || 1 }}
+            </div>
+          </div>
+          <div class="card-body p-3">
+            <div class="row g-2 gallery-thumbnails">
+              <div
+                class="col-2"
+                *ngFor="let img of tour.gallery; let i = index"
+              >
+                <img
+                  [src]="img"
+                  [alt]="tour.title + ' image ' + i"
+                  class="img-thumbnail"
+                  [class.active]="i === currentImageIndex"
+                  (click)="setCurrentImage(i)"
+                  onerror="this.src='https://placehold.co/100x60/e9ecef/495057?text=NA'"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabs for tour content with improved styling -->
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-white p-0">
+            <ul class="nav nav-tabs card-header-tabs">
+              <li class="nav-item">
+                <a
+                  class="nav-link"
+                  [class.active]="activeTab === 'overview'"
+                  (click)="setActiveTab('overview')"
+                  href="javascript:void(0)"
+                >
+                  <i class="bi bi-info-circle me-2"></i>Tổng quan
+                </a>
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link"
+                  [class.active]="activeTab === 'itinerary'"
+                  (click)="setActiveTab('itinerary')"
+                  href="javascript:void(0)"
+                >
+                  <i class="bi bi-calendar3 me-2"></i>Lịch trình
+                </a>
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link"
+                  [class.active]="activeTab === 'inclusions'"
+                  (click)="setActiveTab('inclusions')"
+                  href="javascript:void(0)"
+                >
+                  <i class="bi bi-cash-coin me-2"></i>Chi tiết giá
+                </a>
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link"
+                  [class.active]="activeTab === 'reviews'"
+                  (click)="setActiveTab('reviews')"
+                  href="javascript:void(0)"
+                >
+                  <i class="bi bi-chat-quote me-2"></i>Đánh giá
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div class="card-body tab-container">
+            <!-- Overview Tab -->
+            <div *ngIf="activeTab === 'overview'" class="tab-content">
+              <h4 class="mb-4 fw-bold">
+                <span class="border-bottom border-primary border-3 pb-1"
+                  >Thông tin tour</span
+                >
+              </h4>
+              <p class="mb-4 tour-description">{{ tour.description }}</p>
+
+              <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                  <div class="card h-100 highlight-card">
+                    <div class="card-body">
+                      <h5 class="card-title fw-bold mb-3">
+                        <i
+                          class="bi bi-lightning-charge-fill text-warning me-2"
+                        ></i>
+                        Điểm nổi bật
+                      </h5>
+                      <ul class="list-group list-group-flush highlight-list">
+                        <li class="list-group-item border-0 ps-0">
+                          <i
+                            class="bi bi-check-circle-fill text-success me-2"
+                          ></i>
+                          <span>Khám phá cảnh đẹp thiên nhiên</span>
+                        </li>
+                        <li class="list-group-item border-0 ps-0">
+                          <i
+                            class="bi bi-check-circle-fill text-success me-2"
+                          ></i>
+                          <span>Trải nghiệm văn hóa địa phương</span>
+                        </li>
+                        <li class="list-group-item border-0 ps-0">
+                          <i
+                            class="bi bi-check-circle-fill text-success me-2"
+                          ></i>
+                          <span>Hướng dẫn viên chuyên nghiệp</span>
+                        </li>
+                        <li class="list-group-item border-0 ps-0">
+                          <i
+                            class="bi bi-check-circle-fill text-success me-2"
+                          ></i>
+                          <span>Lịch trình hợp lý, không vội vã</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="card h-100 info-card">
+                    <div class="card-body">
+                      <h5 class="card-title fw-bold mb-3">
+                        <i class="bi bi-info-circle-fill text-primary me-2"></i>
+                        Thông tin chung
+                      </h5>
+                      <ul class="list-group list-group-flush info-list">
+                        <li class="list-group-item border-0 ps-0">
+                          <div class="d-flex align-items-center">
+                            <div class="icon-wrapper">
+                              <i
+                                class="bi bi-calendar3-event-fill text-primary"
+                              ></i>
+                            </div>
+                            <div>
+                              <span class="info-label">Khởi hành:</span>
+                              <span class="fw-medium">{{
+                                tour.departureDate
+                              }}</span>
+                            </div>
+                          </div>
+                        </li>
+                        <li class="list-group-item border-0 ps-0">
+                          <div class="d-flex align-items-center">
+                            <div class="icon-wrapper">
+                              <i class="bi bi-clock-fill text-primary"></i>
+                            </div>
+                            <div>
+                              <span class="info-label">Thời gian:</span>
+                              <span class="fw-medium">{{ tour.duration }}</span>
+                            </div>
+                          </div>
+                        </li>
+                        <li class="list-group-item border-0 ps-0">
+                          <div class="d-flex align-items-center">
+                            <div class="icon-wrapper">
+                              <i class="bi bi-people-fill text-primary"></i>
+                            </div>
+                            <div>
+                              <span class="info-label">Số lượng:</span>
+                              <span class="fw-medium">Từ 10-20 khách</span>
+                            </div>
+                          </div>
+                        </li>
+                        <li class="list-group-item border-0 ps-0">
+                          <div class="d-flex align-items-center">
+                            <div class="icon-wrapper">
+                              <i class="bi bi-geo-alt-fill text-primary"></i>
+                            </div>
+                            <div>
+                              <span class="info-label">Điểm đến:</span>
+                              <span class="fw-medium">{{
+                                tour.destination
+                              }}</span>
+                            </div>
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Itinerary Tab with improved timeline -->
+            <div *ngIf="activeTab === 'itinerary'" class="tab-content">
+              <h4 class="mb-4 fw-bold">
+                <span class="border-bottom border-primary border-3 pb-1"
+                  >Lịch trình chi tiết</span
+                >
+              </h4>
+              <div class="timeline">
+                <div class="timeline-item" *ngFor="let day of tour.itinerary">
+                  <div class="timeline-badge">{{ day.day }}</div>
+                  <div class="timeline-panel">
+                    <div class="timeline-heading">
+                      <h5 class="timeline-title">
+                        Ngày {{ day.day }}: {{ day.title }}
+                      </h5>
+                    </div>
+                    <div class="timeline-body">
+                      <p>{{ day.description }}</p>
+
+                      <h6 class="mt-3 mb-2 fw-bold">
+                        <i class="bi bi-cup-hot-fill text-primary me-2"></i>Ăn
+                        uống:
+                      </h6>
+                      <div class="mb-3 meals-container">
+                        <span
+                          class="badge rounded-pill meal-badge me-2"
+                          *ngFor="let meal of day.meals"
+                          >{{ meal }}</span
+                        >
+                      </div>
+
+                      <h6 class="mb-2 fw-bold">
+                        <i class="bi bi-journal-check text-primary me-2"></i
+                        >Hoạt động:
+                      </h6>
+                      <ul class="activity-list">
+                        <li *ngFor="let activity of day.activities">
+                          {{ activity }}
+                        </li>
+                      </ul>
+
+                      <h6 class="mt-3 mb-2 fw-bold">
+                        <i class="bi bi-house-door-fill text-primary me-2"></i
+                        >Nghỉ đêm:
+                      </h6>
+                      <p class="accommodation fw-medium">
+                        {{ day.accommodation }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Inclusions Tab with better organization -->
+            <div *ngIf="activeTab === 'inclusions'" class="tab-content">
+              <div class="row g-4">
+                <div class="col-md-6">
+                  <h4 class="mb-4 fw-bold text-success">
+                    <i class="bi bi-check2-circle me-2"></i>Dịch vụ bao gồm
+                  </h4>
+                  <div class="inclusion-card">
+                    <ul class="list-group list-group-flush mb-4">
+                      <li
+                        class="list-group-item border-0 ps-0 d-flex"
+                        *ngFor="let inclusion of tour.inclusions"
+                      >
+                        <i
+                          class="bi bi-check-circle-fill text-success me-2 mt-1"
+                        ></i>
+                        <span>{{ inclusion }}</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <h4 class="mb-4 fw-bold text-danger">
+                    <i class="bi bi-x-circle me-2"></i>Dịch vụ không bao gồm
+                  </h4>
+                  <div class="exclusion-card">
+                    <ul class="list-group list-group-flush mb-4">
+                      <li
+                        class="list-group-item border-0 ps-0 d-flex"
+                        *ngFor="let exclusion of tour.exclusions"
+                      >
+                        <i
+                          class="bi bi-x-circle-fill text-danger me-2 mt-1"
+                        ></i>
+                        <span>{{ exclusion }}</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <h4 class="mt-4 mb-3 fw-bold">
+                <i class="bi bi-cash me-2"></i>Chính sách giá
+              </h4>
+              <div class="table-responsive price-table">
+                <table class="table table-bordered table-hover">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Loại khách</th>
+                      <th>Giá</th>
+                      <th>Ghi chú</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="fw-medium">Người lớn</td>
+                      <td class="fw-bold text-primary">
+                        {{ tour.price | number }} VND
+                      </td>
+                      <td>Từ 12 tuổi trở lên</td>
+                    </tr>
+                    <tr>
+                      <td class="fw-medium">Trẻ em</td>
+                      <td class="fw-bold text-primary">
+                        {{ tour.price * 0.5 | number }} VND
+                      </td>
+                      <td>Từ 2-11 tuổi</td>
+                    </tr>
+                    <tr>
+                      <td class="fw-medium">Em bé</td>
+                      <td class="fw-bold text-success">Miễn phí</td>
+                      <td>Dưới 2 tuổi</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="alert alert-info mt-4 d-flex align-items-center">
+                <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+                <div>
+                  Giá có thể thay đổi tùy theo thời điểm và số lượng khách. Vui
+                  lòng liên hệ với chúng tôi để có thông tin chính xác nhất.
+                </div>
+              </div>
+            </div>
+
+            <!-- Reviews Tab with better styling -->
+            <div *ngIf="activeTab === 'reviews'" class="tab-content">
+              <h4 class="mb-4 fw-bold">
+                <span class="border-bottom border-primary border-3 pb-1"
+                  >Đánh giá từ khách hàng</span
+                >
+              </h4>
+
+              <div class="reviews-container">
+                <div
+                  class="review-card mb-4"
+                  *ngFor="let review of tour.reviews"
+                >
+                  <div class="d-flex mb-3">
+                    <img
+                      [src]="
+                        review.avatar ||
+                        'https://ui-avatars.com/api/?name=' +
+                          review.author +
+                          '&background=random'
+                      "
+                      class="review-avatar me-3"
+                      alt="Reviewer avatar"
+                      onerror="this.src='https://ui-avatars.com/api/?name=User&background=random'"
+                    />
+                    <div>
+                      <h5 class="card-title mb-1 fw-bold">
+                        {{ review.author }}
+                      </h5>
+                      <div class="d-flex align-items-center">
+                        <div class="stars">
+                          <i
+                            class="bi bi-star-fill"
+                            *ngFor="let i of [1, 2, 3, 4, 5]"
+                            [class.text-warning]="i <= review.rating"
+                          ></i>
+                        </div>
+                        <span class="ms-2 text-secondary small">{{
+                          review.date
+                        }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="card-text review-comment">{{ review.comment }}</p>
+                </div>
+              </div>
+
+              <div
+                class="alert alert-primary mt-4 d-flex align-items-center review-cta"
+              >
+                <i class="bi bi-chat-dots-fill fs-4 me-3"></i>
+                <div>
+                  Đã đi tour này rồi? Chia sẻ trải nghiệm của bạn bằng cách liên
+                  hệ với chúng tôi.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right column: Booking and Price -->
+      <div class="col-lg-4">
+        <!-- Price Card with improved booking form -->
+        <div
+          class="card shadow-sm mb-4 tour-booking-card sticky-top"
+          style="top: 1rem; z-index: 10"
+        >
+          <div class="card-body">
+            <h5 class="card-title fw-bold mb-3">
+              <i class="bi bi-calendar2-check me-2"></i>Đặt tour
+            </h5>
+            <div class="price-display mb-4">
+              <span class="price-value">{{ tour.price | number }}</span>
+              <span class="price-currency">VND</span>
+              <span class="price-person">/ người</span>
+            </div>
+
+            <form
+              [formGroup]="bookingForm"
+              (ngSubmit)="submitBooking()"
+              class="booking-form"
+            >
+              <div class="mb-3">
+                <label for="bookingDate" class="form-label fw-medium">
+                  <i class="bi bi-calendar-event me-2"></i>Ngày khởi hành
+                </label>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="bookingDate"
+                  formControlName="date"
+                  [class.is-invalid]="
+                    bookingForm.get('date')?.invalid &&
+                    bookingForm.get('date')?.touched
+                  "
+                />
+                <div class="invalid-feedback">Vui lòng chọn ngày khởi hành</div>
+              </div>
+
+              <div class="row g-3 mb-3">
+                <div class="col-6">
+                  <label for="adults" class="form-label fw-medium">
+                    <i class="bi bi-person me-2"></i>Người lớn
+                  </label>
+                  <div class="input-group">
+                    <button
+                      class="btn btn-outline-secondary"
+                      type="button"
+                      (click)="adjustGuests('adults', -1)"
+                      [disabled]="bookingForm.get('adults')?.value <= 1"
+                    >
+                      <i class="bi bi-dash"></i>
+                    </button>
+                    <input
+                      type="number"
+                      class="form-control text-center"
+                      id="adults"
+                      formControlName="adults"
+                      min="1"
+                      readonly
+                      [class.is-invalid]="
+                        bookingForm.get('adults')?.invalid &&
+                        bookingForm.get('adults')?.touched
+                      "
+                    />
+                    <button
+                      class="btn btn-outline-secondary"
+                      type="button"
+                      (click)="adjustGuests('adults', 1)"
+                    >
+                      <i class="bi bi-plus"></i>
+                    </button>
+                  </div>
+                  <div
+                    class="invalid-feedback d-block"
+                    *ngIf="
+                      bookingForm.get('adults')?.invalid &&
+                      bookingForm.get('adults')?.touched
+                    "
+                  >
+                    Ít nhất 1 người lớn
+                  </div>
+                </div>
+                <div class="col-6">
+                  <label for="children" class="form-label fw-medium">
+                    <i class="bi bi-person-badge me-2"></i>Trẻ em
+                  </label>
+                  <div class="input-group">
+                    <button
+                      class="btn btn-outline-secondary"
+                      type="button"
+                      (click)="adjustGuests('children', -1)"
+                      [disabled]="bookingForm.get('children')?.value <= 0"
+                    >
+                      <i class="bi bi-dash"></i>
+                    </button>
+                    <input
+                      type="number"
+                      class="form-control text-center"
+                      id="children"
+                      formControlName="children"
+                      min="0"
+                      readonly
+                      [class.is-invalid]="
+                        bookingForm.get('children')?.invalid &&
+                        bookingForm.get('children')?.touched
+                      "
+                    />
+                    <button
+                      class="btn btn-outline-secondary"
+                      type="button"
+                      (click)="adjustGuests('children', 1)"
+                    >
+                      <i class="bi bi-plus"></i>
+                    </button>
+                  </div>
+                  <div
+                    class="invalid-feedback d-block"
+                    *ngIf="
+                      bookingForm.get('children')?.invalid &&
+                      bookingForm.get('children')?.touched
+                    "
+                  >
+                    Không được âm
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="name" class="form-label fw-medium">
+                  <i class="bi bi-person-vcard me-2"></i>Họ tên
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="name"
+                  formControlName="name"
+                  [class.is-invalid]="
+                    bookingForm.get('name')?.invalid &&
+                    bookingForm.get('name')?.touched
+                  "
+                />
+                <div class="invalid-feedback">Vui lòng nhập họ tên</div>
+              </div>
+
+              <div class="mb-3">
+                <label for="email" class="form-label fw-medium">
+                  <i class="bi bi-envelope me-2"></i>Email
+                </label>
+                <input
+                  type="email"
+                  class="form-control"
+                  id="email"
+                  formControlName="email"
+                  [class.is-invalid]="
+                    bookingForm.get('email')?.invalid &&
+                    bookingForm.get('email')?.touched
+                  "
+                />
+                <div class="invalid-feedback">Vui lòng nhập email hợp lệ</div>
+              </div>
+
+              <div class="mb-4">
+                <label for="phone" class="form-label fw-medium">
+                  <i class="bi bi-telephone me-2"></i>Số điện thoại
+                </label>
+                <input
+                  type="tel"
+                  class="form-control"
+                  id="phone"
+                  formControlName="phone"
+                  [class.is-invalid]="
+                    bookingForm.get('phone')?.invalid &&
+                    bookingForm.get('phone')?.touched
+                  "
+                />
+                <div class="invalid-feedback">
+                  Vui lòng nhập số điện thoại hợp lệ (10 số)
+                </div>
+              </div>
+
+              <div class="total-price mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="fw-medium">Tổng tiền:</span>
+                  <span class="total-price-value"
+                    >{{ getTotalPrice() | number }} VND</span
+                  >
+                </div>
+                <div class="text-secondary small mt-1">
+                  Đã bao gồm thuế và phí
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                class="btn btn-primary w-100 py-3 fw-bold book-now-btn"
+              >
+                <i class="bi bi-cart-check me-2"></i>Đặt ngay
+              </button>
+            </form>
+          </div>
+          <!-- Contact Card with better styling -->
+          <div class="card shadow-sm mb-4 contact-card">
+            <div class="card-body">
+              <h5 class="card-title fw-bold mb-3">
+                <i class="bi bi-headset me-2"></i>Hỗ trợ
+              </h5>
+              <div class="d-flex align-items-center mb-3 support-item">
+                <div class="support-icon me-3">
+                  <i class="bi bi-telephone-fill"></i>
+                </div>
+                <div>
+                  <div class="support-title">Gọi ngay</div>
+                  <div class="support-value">1900 1234</div>
+                </div>
+              </div>
+              <div class="d-flex align-items-center support-item">
+                <div class="support-icon me-3">
+                  <i class="bi bi-envelope-fill"></i>
+                </div>
+                <div>
+                  <div class="support-title">Email</div>
+                  <div class="support-value">support&#64;flightbooking.com</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Share Card with improved social buttons -->
+          <div class="card shadow-sm share-card">
+            <div class="card-body">
+              <h5 class="card-title fw-bold mb-3">
+                <i class="bi bi-share me-2"></i>Chia sẻ
+              </h5>
+              <div class="d-flex social-share">
+                <a
+                  href="javascript:void(0)"
+                  class="btn btn-outline-primary me-2"
+                  aria-label="Share on Facebook"
+                >
+                  <i class="bi bi-facebook"></i>
+                </a>
+                <a
+                  href="javascript:void(0)"
+                  class="btn btn-outline-info me-2"
+                  aria-label="Share on Twitter"
+                >
+                  <i class="bi bi-twitter-x"></i>
+                </a>
+                <a
+                  href="javascript:void(0)"
+                  class="btn btn-outline-success me-2"
+                  aria-label="Share on WhatsApp"
+                >
+                  <i class="bi bi-whatsapp"></i>
+                </a>
+                <a
+                  href="javascript:void(0)"
+                  class="btn btn-outline-secondary"
+                  aria-label="Share via Email"
+                >
+                  <i class="bi bi-envelope"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Related Tours Section with better styling -->
+    <div class="mt-5 pb-3 related-tours">
+      <h3 class="mb-4 fw-bold section-title">
+        <i class="bi bi-compass me-2"></i>Tours tương tự
+      </h3>
+      <div class="row g-4">
+        <div
+          class="col-md-6 col-lg-4"
+          *ngFor="let relatedTour of getMockTourPackages().slice(0, 3)"
+        >
+          <div
+            class="card h-100 tour-card shadow-sm"
+            *ngIf="relatedTour.id !== tourId"
+          >
+            <div class="position-relative">
+              <img
+                [src]="relatedTour.image"
+                [alt]="relatedTour.title"
+                class="card-img-top tour-image"
+                onerror="this.src='https://placehold.co/600x400/e9ecef/495057?text=Image+Unavailable'"
+              />
+              <div class="tour-price">{{ relatedTour.price | number }} VND</div>
+              <div class="tour-duration">{{ relatedTour.duration }}</div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">{{ relatedTour.title }}</h5>
+              <div class="d-flex align-items-center mb-2">
+                <i class="bi bi-geo-alt-fill text-primary me-2"></i>
+                <span class="fw-medium">{{ relatedTour.destination }}</span>
+              </div>
+              <div class="d-flex align-items-center mb-3">
+                <div class="tour-rating me-2">
+                  <i class="bi bi-star-fill"></i>
+                  {{ relatedTour.rating }}
+                </div>
+                <div class="text-secondary small">
+                  Khởi hành: {{ relatedTour.departureDate }}
+                </div>
+              </div>
+              <p class="card-text">
+                {{ relatedTour.description.substring(0, 100) }}...
+              </p>
+            </div>
+            <div class="card-footer bg-white border-top-0">
+              <a
+                [routerLink]="['/tours', relatedTour.id]"
+                class="btn btn-primary w-100 detail-btn"
+              >
+                <i class="bi bi-arrow-right-circle me-2"></i>Chi tiết
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

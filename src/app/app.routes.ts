@@ -52,6 +52,13 @@ export const routes: Routes = [
     title: 'Tours du lịch - Flight Booking'
   },
   
+  // Tour detail route
+  {
+    path: 'tours/:id',
+    loadComponent: () => import('./features/tours/tour-detail/tour-detail.component').then(m => m.TourDetailComponent),
+    title: 'Chi tiết tour - Flight Booking'
+  },
+  
   // Hotels route
   {
     path: 'hotels',
