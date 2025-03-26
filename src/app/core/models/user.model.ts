@@ -14,7 +14,7 @@ export interface User {
 export enum UserRole {
   USER = 'USER',
   ADMIN = 'ADMIN',
-  STAFF = 'STAFF'
+  STAFF = 'STAFF',
 }
 
 export interface AuthState {
@@ -27,17 +27,18 @@ export interface AuthState {
 }
 
 export interface LoginCredentials {
-  email: string;
+  username: string;
   password: string;
-  rememberMe?: boolean;
+  clientId: string;
+  clientSecret: string;
 }
 
 export interface RegisterData {
-  email: string;
+  username: string;
   password: string;
   confirmPassword: string;
   firstName: string;
   lastName: string;
   phone?: string;
   termsAccepted: boolean;
-} 
+}

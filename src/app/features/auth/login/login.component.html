@@ -30,19 +30,16 @@
                   <!-- Email -->
                   <div class="form-floating mb-3">
                     <input 
-                      type="email" 
+                      type="text" 
                       class="form-control custom-input" 
-                      id="email" 
-                      placeholder="Email" 
-                      formControlName="email"
-                      [ngClass]="{'is-invalid': loginForm.get('email')?.invalid && loginForm.get('email')?.touched}"
+                      id="username" 
+                      placeholder="Username" 
+                      formControlName="username"
+                      [ngClass]="{'is-invalid': loginForm.get('username')?.invalid && loginForm.get('username')?.touched}"
                     >
-                    <label for="email"><i class="bi bi-envelope-fill me-2"></i>Email</label>
-                    <div class="invalid-feedback" *ngIf="loginForm.get('email')?.errors?.['required']">
-                      Email là bắt buộc
-                    </div>
-                    <div class="invalid-feedback" *ngIf="loginForm.get('email')?.errors?.['email']">
-                      Vui lòng nhập địa chỉ email hợp lệ
+                    <label for="username"><i class="bi bi-envelope-fill me-2"></i>Username</label>
+                    <div class="invalid-feedback" *ngIf="loginForm.get('username')?.errors?.['required']">
+                      Username là bắt buộc
                     </div>
                   </div>
                   

@@ -1,4 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://api.flightbooking.example.com/api/v1'
+  apiUrl: 'https://evc.booking1a.com/hub/api/',
+  clientId: 'web_app',
+  clientSecret: '6c2roTgWrCJaHnMdcsgsfaCIlEYyOE1K',
 }; 

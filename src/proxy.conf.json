@@ -1,0 +1,8 @@
+{
+  "/api": {
+    "target": "https://evc.booking1a.com/hub",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+} 

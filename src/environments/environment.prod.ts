@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.flightbooking.example.com/api'
+  apiUrl: 'https://evc.booking1a.com/hub/api/'
 }; 

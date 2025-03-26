@@ -20,7 +20,6 @@ $dark: #212529;
 /* Bootstrap */
 @use "bootstrap/scss/bootstrap" as bootstrap;
 
-
 /* Bootstrap Icons */
 @use "bootstrap-icons/font/bootstrap-icons.css" as *;
 
@@ -174,7 +173,9 @@ a {
   h3 {
     font-size: 1.3rem;
   }
-  p, .btn, .form-control {
+  p,
+  .btn,
+  .form-control {
     font-size: 0.95rem;
   }
 }
@@ -185,17 +186,17 @@ a {
     max-width: 100%;
     padding: 0 12px;
   }
-  
+
   .row {
     margin-left: -8px;
     margin-right: -8px;
   }
-  
+
   [class*="col-"] {
     padding-left: 8px;
     padding-right: 8px;
   }
-  
+
   .card {
     margin-bottom: 15px;
   }
@@ -272,9 +273,12 @@ a {
 
 // Custom container
 .container {
-  max-width: 100vw;
+  max-width: 90vw;
   margin: 0 auto;
   padding: 0 10px;
+  @media (max-width: 576px) {
+    max-width: 94vw;
+  }
 }
 
 // Material button overrides
@@ -368,7 +372,7 @@ a {
   &:hover {
     transform: translateY(-5px);
   }
-  
+
   @media (max-width: 576px) {
     bottom: 20px;
     right: 20px;
@@ -536,35 +540,36 @@ a {
       box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
     }
   }
-  
+
   .card {
     &:hover {
       transform: none;
       box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
     }
   }
-  
+
   .row > [class*="col-"] {
     margin-bottom: 15px;
   }
-  
+
   .d-flex {
     flex-wrap: wrap;
   }
-  
+
   .gap-4 {
     gap: 1rem !important;
   }
-  
+
   // Dropdown/Modal menu fixes
-  .dropdown-menu, .modal-content {
+  .dropdown-menu,
+  .modal-content {
     width: 94vw !important;
     max-width: 94vw;
     margin: 0 3vw;
     border-radius: 0.5rem;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   }
-  
+
   // Hamburger menu
   .navbar-collapse {
     background: white;
@@ -577,7 +582,7 @@ a {
     border-radius: 0 0 0.5rem 0.5rem;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   }
-  
+
   // Fix for switch buttons in form
   .form-switch {
     padding-left: 2.5em;
@@ -609,19 +614,19 @@ a {
     margin: 0.5rem auto;
     max-width: 94vw;
   }
-  
+
   .modal-content {
     border-radius: 0.5rem;
   }
-  
+
   .modal-header {
     padding: 0.75rem 1rem;
   }
-  
+
   .modal-body {
     padding: 1rem;
   }
-  
+
   .modal-footer {
     padding: 0.75rem 1rem;
   }
@@ -633,7 +638,7 @@ a {
     width: 90vw !important;
     max-width: 90vw !important;
   }
-  
+
   .mat-calendar {
     width: 100% !important;
   }
@@ -643,12 +648,12 @@ a {
 .navbar-toggler {
   border: none;
   padding: 0.5rem;
-  
+
   &:focus {
     box-shadow: none;
     outline: none;
   }
-  
+
   .navbar-toggler-icon {
     width: 1.5em;
     height: 1.5em;
