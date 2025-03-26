@@ -1,7 +1,7 @@
 ---
-description: 
+description: This rule ensures that all responses related to Angular development follow best practices for scalability, maintainability, and performance. It enforces strict type safety, clear naming conventions, and adherence to Angular’s official style guide. The agent provides concise, high-quality TypeScript and Angular examples while prioritizing immutability, modularity, and efficient state management.
 globs: 
-alwaysApply: true
+alwaysApply: false
 ---
 
 **Prompt for Expert Angular Developer**

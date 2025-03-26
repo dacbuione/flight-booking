@@ -1,4 +1,10 @@
-import { Component, inject, signal, DestroyRef } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  DestroyRef,
+  HostListener,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MobileNavComponent } from '../mobile-nav/mobile-nav.component';
@@ -20,6 +26,7 @@ export class HeaderComponent {
 
   isLoggedIn: boolean | null = null;
   currentUser = signal<User | null>(null);
+  isDropdownOpen = false;
 
   constructor() {
     // Get auth state from AuthService
@@ -39,6 +46,15 @@ export class HeaderComponent {
       });
   }
 
+  @HostListener('document:click', ['$event'])
+  onClick(event: Event): void {
+    const target = event.target as HTMLElement;
+    const dropdown = document.querySelector('.user-account-dropdown');
+    if (dropdown && !dropdown.contains(target) && this.isDropdownOpen) {
+      this.isDropdownOpen = false;
+    }
+  }
+
   userName() {
     const user = this.currentUser();
     if (!user) return 'User';
@@ -48,11 +64,18 @@ export class HeaderComponent {
     } else if (user.firstName) {
       return user.firstName;
     } else {
-      return user.email.split('@')[0];
+      return user.email?.split('@')[0] || 'Finn';
     }
+  }
+
+  toggleDropdown(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDropdownOpen = !this.isDropdownOpen;
   }
 
   logout(): void {
     this.authService.logout();
+    this.isDropdownOpen = false;
   }
 }

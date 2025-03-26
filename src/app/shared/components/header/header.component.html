@@ -77,7 +77,6 @@
         <div class="auth-actions">
           @if (isLoggedIn === null) {
           <div class="loading-indicator">
-            <span>Loading...</span>
           </div>
           } @else if (!isLoggedIn) {
           <a
@@ -94,17 +93,17 @@
           >
           } @else {
           <div class="user-account-dropdown">
-            <div class="user-account-toggle">
+            <div class="user-account-toggle" (click)="toggleDropdown($event)">
               <div class="user-avatar">
                 <img
-                  src="assets/images/avatars/default-avatar.png"
+                  src="https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png"
                   alt="User Avatar"
                 />
               </div>
               <span class="user-name">{{ userName() }}</span>
               <i class="fa fa-chevron-down"></i>
             </div>
-            <div class="dropdown-menu">
+            <div class="dropdown-menu" [ngClass]="{'show': isDropdownOpen}">
               <a routerLink="/profile" routerLinkActive="active">
                 <i class="fa fa-user"></i> Thông tin tài khoản
               </a>
