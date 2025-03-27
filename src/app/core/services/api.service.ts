@@ -251,6 +251,22 @@ export class ApiService {
     } else if (error instanceof HttpErrorResponse) {
       // Server or connection error
       errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+      
+      // Special handling for JWT token errors (401)
+      if (error.status === 401) {
+        console.error('JWT ERROR DETAILS:', {
+          url: error.url,
+          error: error.error,
+          headers: Array.from(error.headers.keys()).map(key => 
+            `${key}: ${error.headers.get(key)}`
+          )
+        });
+        
+        // Detect JWT expiration error
+        if (error.error && typeof error.error === 'object' && 'error_description' in error.error) {
+          errorMessage = `JWT Error: ${error.error.error_description}`;
+        }
+      }
     }
 
     console.error(errorMessage);

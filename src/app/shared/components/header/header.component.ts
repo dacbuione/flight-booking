@@ -35,7 +35,7 @@ export class HeaderComponent {
       .subscribe((isAuthenticated) => {
         setTimeout(() => {
           this.isLoggedIn = isAuthenticated;
-        }, 5000);
+        }, 1000);
       });
 
     // Get current user data

@@ -101,6 +101,10 @@ export class AuthService implements TokenProvider {
           accessToken,
           refreshToken
         );
+        
+        // Save credentials for automatic re-login if login successful
+        this.saveLoginCredentials(credentials);
+        
         this.setLoading(false);
       }),
       map((response) => response as User),
@@ -363,5 +367,101 @@ export class AuthService implements TokenProvider {
     console.log('Token provider check:', {
       getToken: !!this.getToken()
     });
+  }
+
+  /**
+   * Automatically re-login the user when a 401 error is received
+   * This is used when the token refresh fails but we have saved credentials
+   */
+  automaticReLogin(): Observable<string> {
+    console.log('Attempting automatic re-login...');
+    
+    // Set loading flag
+    this.setLoading(true);
+    
+    // Check if we have saved credentials
+    const savedCredentialsStr = this.storageService.getItem('saved_credentials');
+    if (!savedCredentialsStr) {
+      console.log('No saved credentials found for automatic re-login');
+      this.setLoading(false);
+      return throwError(() => new Error('No saved credentials'));
+    }
+    
+    try {
+      // Parse saved credentials
+      const savedCredentials = JSON.parse(savedCredentialsStr) as LoginCredentials;
+      
+      // Add client credentials
+      savedCredentials.clientId = environment.clientId;
+      savedCredentials.clientSecret = environment.clientSecret;
+      
+      console.log('Using saved credentials for automatic re-login');
+      
+      // Attempt login using saved credentials
+      return this.apiService.post<any>(getConfigEndpoint('auth', 'login'), savedCredentials).pipe(
+        tap((response) => {
+          console.log('Automatic re-login successful');
+          
+          // Handle different API response formats
+          const accessToken = response.access_token || response.accessToken;
+          const refreshToken = response.refresh_token || response.refreshToken;
+          
+          // Update session
+          this.setSession(
+            response as User,
+            accessToken,
+            refreshToken
+          );
+          this.setLoading(false);
+        }),
+        map((response) => response.access_token || response.accessToken),
+        catchError((error) => {
+          console.error('Automatic re-login failed:', error);
+          this.setLoading(false);
+          
+          // Clear invalid credentials
+          this.storageService.removeItem('saved_credentials');
+          
+          // Logout and redirect to login page
+          this.logout();
+          return throwError(() => error);
+        })
+      );
+    } catch (e) {
+      console.error('Error parsing saved credentials:', e);
+      this.setLoading(false);
+      this.storageService.removeItem('saved_credentials');
+      return throwError(() => new Error('Invalid saved credentials'));
+    }
+  }
+
+  /**
+   * Save login credentials for automatic re-login with basic encryption
+   * @param credentials Login credentials to save
+   */
+  saveLoginCredentials(credentials: LoginCredentials): void {
+    try {
+      // Create a copy without sensitive client info
+      const credentialsToSave: Partial<LoginCredentials> = {
+        username: credentials.username,
+        password: credentials.password
+      };
+      
+      // Apply simple encoding (not secure encryption, but better than plaintext)
+      // For production, use a proper encryption library
+      const encoded = btoa(JSON.stringify(credentialsToSave));
+      
+      // Save to storage with timestamp to track age
+      const saveData = {
+        data: encoded,
+        timestamp: new Date().getTime()
+      };
+      
+      // Save to storage
+      this.storageService.setItem('saved_credentials', JSON.stringify(saveData));
+      console.log('Login credentials saved for automatic re-login');
+    } catch (e) {
+      console.error('Failed to save login credentials:', e);
+    }
   }
 }

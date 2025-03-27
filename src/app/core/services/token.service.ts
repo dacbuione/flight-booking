@@ -77,6 +77,17 @@ export class TokenService {
     // Note: we don't clear autoLoginToken here
   }
   
+  isTokenExpired(): boolean {
+    const token = this.getAccessToken();
+    if (!token) return true;
+    
+    const expiry = this.tokenExpiryMap.get(token);
+    if (!expiry) return false;
+    
+    const now = new Date();
+    return expiry.getTime() <= now.getTime();
+  }
+  
   isTokenExpiringSoon(minutesThreshold: number = 5): boolean {
     const token = this.getAccessToken();
     if (!token) return true;

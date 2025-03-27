@@ -6,6 +6,9 @@
     "logLevel": "debug",
     "pathRewrite": {
       "^/api": "/api"
+    },
+    "headers": {
+      "Origin": "https://evc.booking1a.com"
     }
   }
 } 

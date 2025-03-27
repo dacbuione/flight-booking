@@ -66,7 +66,10 @@ export class ApiInterceptor implements HttpInterceptor {
         if (error.status === 0) {
           console.error('Network error - please check your connection');
         } 
-        // Skip 401 errors - these are handled by AuthInterceptor
+        // Skip 401 errors - these are handled by AuthInterceptor, but log for debugging
+        else if (error.status === apiConfig.statusCodes.unauthorized) {
+          console.error('API Interceptor: 401 Unauthorized error detected for URL:', request.url, 'This will be handled by AuthInterceptor');
+        }
         else if (error.status === apiConfig.statusCodes.forbidden) {
           console.error('Authorization error - you do not have permission');
         } else if (error.status === apiConfig.statusCodes.serverError) {
