@@ -29,12 +29,6 @@ export class TokenService {
       this.accessTokenSubject.next(token);
       this.setTokenExpiryEstimate(token);
     }
-    
-    console.log('TokenService initialized:', {
-      hasAccessToken: !!token,
-      hasRefreshToken: !!refreshToken,
-      hasAutoLoginToken: !!autoLoginToken
-    });
   }
   
   getAccessToken(): string | null {

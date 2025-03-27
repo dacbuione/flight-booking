@@ -68,7 +68,7 @@ interface Airport {
   ],
 })
 export class HeroComponent implements OnInit, OnDestroy, AfterViewInit {
-  searchForm: FormGroup;
+  searchForm!: FormGroup;
   today = new Date();
   currentBackgroundIndex = signal<number>(0);
 
@@ -323,28 +323,36 @@ export class HeroComponent implements OnInit, OnDestroy, AfterViewInit {
     private router: Router
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
+    
+    // Initialize form with safe defaults
+    this.initializeForm();
+  }
+
+  /**
+   * Initialize form with safe defaults
+   * This is done in constructor to ensure it's available before template binding
+   */
+  private initializeForm(): void {
+    // Default dates
+    const today = new Date();
+    const returnDate = new Date();
+    returnDate.setDate(today.getDate() + 7);
+    
+    // Create form with default values
     this.searchForm = this.fb.group({
       tripType: ['roundtrip', Validators.required],
-      origin: ['', Validators.required],
-      destination: ['', Validators.required],
-      departDate: [new Date(), Validators.required],
-      returnDate: [
-        {
-          value: new Date(new Date().setDate(new Date().getDate() + 7)),
-          disabled: false,
-        },
-      ],
+      origin: ['HAN', Validators.required],
+      destination: ['SGN', Validators.required],
+      departDate: [today, Validators.required],
+      returnDate: [returnDate, Validators.required],
       adults: [1, [Validators.required, Validators.min(1), Validators.max(9)]],
-      children: [
-        0,
-        [Validators.required, Validators.min(0), Validators.max(9)],
-      ],
+      children: [0, [Validators.required, Validators.min(0), Validators.max(9)]],
       infants: [0, [Validators.required, Validators.min(0), Validators.max(4)]],
       seatClass: ['economy', Validators.required],
       promoCode: [''],
       flexibleDates: [false],
     });
-
+    
     // Set validators conditionally for return date based on trip type
     this.setTripType('roundtrip');
   }

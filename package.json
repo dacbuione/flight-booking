@@ -6,6 +6,9 @@
     "start": "ng serve --proxy-config src/proxy.conf.json",
     "dev": "ng serve --no-hmr --proxy-config src/proxy.conf.json",
     "build": "ng build",
+    "build:no-ssr": "ng build --configuration=production --output-mode=static",
+    "start:no-ssr": "ng serve --output-mode=static --proxy-config src/proxy.conf.json",
+    "start:prod": "node dist/flight-booking/server/server.mjs",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:flight-booking": "node dist/flight-booking/server/server.mjs"

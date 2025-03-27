@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { StorageService } from '../../../core/services/storage.service';
 
 @Component({
   selector: 'app-login',
@@ -20,7 +21,8 @@ export class LoginComponent implements OnInit {
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private storageService: StorageService
   ) {}
   
   ngOnInit(): void {
@@ -39,9 +41,9 @@ export class LoginComponent implements OnInit {
     });
     
     // Check if token is expired or forced relogin is needed
-    const needsRelogin = localStorage.getItem('force_relogin');
+    const needsRelogin = this.storageService.getItem('force_relogin');
     if (needsRelogin === 'true') {
-      localStorage.removeItem('force_relogin');
+      this.storageService.removeItem('force_relogin');
       this.errorMessage = 'Your session has expired. Please log in again.';
       this.autoLogin(); // Try auto login immediately
     }
