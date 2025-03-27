@@ -20,7 +20,7 @@ export interface ApiOptions {
   providedIn: 'root'
 })
 export class ApiService {
-  private readonly baseUrl = apiConfig.baseUrl;
+  private readonly baseUrl = '/api/';
 
   constructor(private http: HttpClient) {}
 

@@ -1,5 +1,4 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
@@ -12,15 +11,17 @@ import {
 } from '../models/user.model';
 import { StorageService } from './storage.service';
 import { getConfigEndpoint } from '../utils/api-utils';
+import { ApiService } from './api.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private readonly API_URL = `/api`;
   private readonly TOKEN_KEY = 'auth_token';
   private readonly REFRESH_TOKEN_KEY = 'refresh_token';
   private readonly USER_KEY = 'user_data';
+  private readonly AUTO_LOGIN_TOKEN_KEY = 'auto_login_token';
 
   private authStateSubject = new BehaviorSubject<AuthState>({
     user: null,
@@ -31,6 +32,9 @@ export class AuthService {
     error: null,
   });
 
+  // Separate token for auto-login functionality
+  private autoLoginToken: string | null = null;
+
   public authState$ = this.authStateSubject.asObservable();
   public currentUser$ = this.authState$.pipe(map((state) => state.user));
   public isAuthenticated$ = this.authState$.pipe(
@@ -39,7 +43,7 @@ export class AuthService {
   public authError$ = this.authState$.pipe(map((state) => state.error));
 
   constructor(
-    private http: HttpClient,
+    private apiService: ApiService,
     private router: Router,
     private storageService: StorageService
   ) {
@@ -50,6 +54,9 @@ export class AuthService {
     const token = this.storageService.getItem(this.TOKEN_KEY);
     const refreshToken = this.storageService.getItem(this.REFRESH_TOKEN_KEY);
     const userDataStr = this.storageService.getItem(this.USER_KEY);
+    
+    // Initialize auto-login token if it exists
+    this.autoLoginToken = this.storageService.getItem(this.AUTO_LOGIN_TOKEN_KEY);
 
     if (token && userDataStr) {
       try {
@@ -74,12 +81,13 @@ export class AuthService {
     credentials.clientId = environment.clientId;
     credentials.clientSecret = environment.clientSecret;
 
-    return this.http.post(getConfigEndpoint('auth', 'login'), credentials).pipe(
+    const endpoint = getConfigEndpoint('auth', 'login');
+    return this.apiService.post<any>(endpoint, credentials).pipe(
       tap((response) => {
         this.setSession(
           response as User,
-          (response as any).access_token,
-          (response as any).refresh_token
+          response.access_token,
+          response.refresh_token
         );
         this.setLoading(false);
       }),
@@ -93,24 +101,22 @@ export class AuthService {
 
   register(data: RegisterData): Observable<User> {
     this.setLoading(true);
+    const endpoint = getConfigEndpoint('auth', 'register');
 
-    return this.http
-      .post<{ user: User; accessToken: string; refreshToken: string }>(
-        `${this.API_URL}/register`,
-        data
-      )
-      .pipe(
-        tap((response) => {
-          const { user, accessToken, refreshToken } = response;
-          this.setSession(user, accessToken, refreshToken);
-          this.setLoading(false);
-        }),
-        map((response) => response.user),
-        catchError((error) => {
-          this.handleAuthError(error);
-          return throwError(() => error);
-        })
-      );
+    return this.apiService.post<{ user: User; accessToken: string; refreshToken: string }>(
+      endpoint, data
+    ).pipe(
+      tap((response) => {
+        const { user, accessToken, refreshToken } = response;
+        this.setSession(user, accessToken, refreshToken);
+        this.setLoading(false);
+      }),
+      map((response) => response.user),
+      catchError((error) => {
+        this.handleAuthError(error);
+        return throwError(() => error);
+      })
+    );
   }
 
   logout(): void {
@@ -118,8 +124,8 @@ export class AuthService {
 
     // Optional: Send logout request to invalidate token on server
     if (refreshToken) {
-      this.http
-        .post(`${this.API_URL}/logout`, { refreshToken })
+      const endpoint = getConfigEndpoint('auth', 'logout');
+      this.apiService.post(endpoint, { refreshToken })
         .pipe(
           catchError(() => of(null)) // Ignore logout errors
         )
@@ -146,36 +152,49 @@ export class AuthService {
       return throwError(() => new Error('No refresh token available'));
     }
 
-    return this.http
-      .post<{ accessToken: string; refreshToken: string }>(
-        `${this.API_URL}/refresh-token`,
-        { refreshToken }
-      )
-      .pipe(
-        tap((response) => {
-          const currentState = this.authStateSubject.value;
-          this.authStateSubject.next({
-            ...currentState,
-            accessToken: response.accessToken,
-            refreshToken: response.refreshToken,
-          });
+    const endpoint = getConfigEndpoint('auth', 'refreshToken');
+    return this.apiService.post<{ accessToken: string; refreshToken: string }>(
+      endpoint, { refreshToken }
+    ).pipe(
+      tap((response) => {
+        const currentState = this.authStateSubject.value;
+        this.authStateSubject.next({
+          ...currentState,
+          accessToken: response.accessToken,
+          refreshToken: response.refreshToken,
+        });
 
-          this.storageService.setItem(this.TOKEN_KEY, response.accessToken);
-          this.storageService.setItem(
-            this.REFRESH_TOKEN_KEY,
-            response.refreshToken
-          );
-        }),
-        map((response) => response.accessToken),
-        catchError((error) => {
-          this.logout();
-          return throwError(() => error);
-        })
-      );
+        this.storageService.setItem(this.TOKEN_KEY, response.accessToken);
+        this.storageService.setItem(
+          this.REFRESH_TOKEN_KEY,
+          response.refreshToken
+        );
+      }),
+      map((response) => response.accessToken),
+      catchError((error) => {
+        this.logout();
+        return throwError(() => error);
+      })
+    );
   }
 
+  /**
+   * Gets the access token from either regular auth or auto-login if available
+   */
   getAccessToken(): string | null {
-    return this.authStateSubject.value.accessToken;
+    // First try to get the regular user token
+    const userToken = this.authStateSubject.value.accessToken;
+    
+    // If no user token, use the auto-login token
+    return userToken || this.autoLoginToken;
+  }
+
+  /**
+   * Set the auto-login token 
+   */
+  setAutoLoginToken(token: string): void {
+    this.autoLoginToken = token;
+    this.storageService.setItem(this.AUTO_LOGIN_TOKEN_KEY, token);
   }
 
   private setSession(
@@ -204,6 +223,7 @@ export class AuthService {
     this.storageService.removeItem(this.TOKEN_KEY);
     this.storageService.removeItem(this.REFRESH_TOKEN_KEY);
     this.storageService.removeItem(this.USER_KEY);
+    // Don't clear auto-login token on regular logout
   }
 
   private setLoading(isLoading: boolean): void {
@@ -216,9 +236,18 @@ export class AuthService {
   }
 
   private handleAuthError(error: any): void {
-    const errorMessage = error.error?.message || 'Authentication failed';
+    let errorMessage = 'Authentication failed';
+    
+    if (error instanceof HttpErrorResponse) {
+      if (error.status === 0) {
+        errorMessage = 'Unable to connect to server. Check network connection or CORS settings.';
+        console.error('CORS error during authentication. This may be fixed by running with proxy.', error);
+      } else {
+        errorMessage = error.error?.message || `Error ${error.status}: ${error.statusText || errorMessage}`;
+      }
+    }
+    
     const currentState = this.authStateSubject.value;
-
     this.authStateSubject.next({
       ...currentState,
       isLoading: false,

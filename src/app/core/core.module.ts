@@ -11,6 +11,8 @@ import { AuthService } from './services/auth.service';
 import { StorageService } from './services/storage.service';
 import { FrequentFlyerService } from './services/frequent-flyer.service';
 import { ApiService } from './services/api.service';
+import { AutoLoginService } from './services/auto-login.service';
+import { CryptoService } from './services/crypto.service';
 
 @NgModule({
   imports: [
@@ -34,7 +36,9 @@ import { ApiService } from './services/api.service';
     ApiService,
     AuthService,
     StorageService,
-    FrequentFlyerService
+    FrequentFlyerService,
+    AutoLoginService,
+    CryptoService
   ]
 })
 export class CoreModule { } 

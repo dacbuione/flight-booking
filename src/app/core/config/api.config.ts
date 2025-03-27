@@ -16,7 +16,9 @@ export const apiConfig = {
       register: 'register',
       refreshToken: 'refresh-token',
       forgotPassword: 'forgot-password',
-      resetPassword: 'reset-password'
+      resetPassword: 'reset-password',
+      autoLogin: 'login',
+      logout: 'logout'
     },
     flights: {
       search: 'flights/search',
