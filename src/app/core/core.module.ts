@@ -13,6 +13,7 @@ import { FrequentFlyerService } from './services/frequent-flyer.service';
 import { ApiService } from './services/api.service';
 import { AutoLoginService } from './services/auto-login.service';
 import { CryptoService } from './services/crypto.service';
+import { TokenService } from './services/token.service';
 
 @NgModule({
   imports: [
@@ -38,7 +39,8 @@ import { CryptoService } from './services/crypto.service';
     StorageService,
     FrequentFlyerService,
     AutoLoginService,
-    CryptoService
+    CryptoService,
+    TokenService
   ]
 })
 export class CoreModule { } 

@@ -7,6 +7,8 @@ import { AppComponent } from './app.component';
 import { CoreModule } from './core/core.module';
 import { SharedModule } from './shared/shared.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { AuthService } from './core/services/auth.service';
+import { TokenProvider } from './core/services/api.service';
 
 @NgModule({
   imports: [
@@ -20,6 +22,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     BrowserAnimationsModule,
     AppComponent
   ],
-  providers: [],
+  providers: [
+    { provide: TokenProvider, useExisting: AuthService }
+  ],
 })
 export class AppModule { } 

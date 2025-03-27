@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { catchError, map, tap, finalize } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import {
@@ -13,15 +13,14 @@ import { StorageService } from './storage.service';
 import { getConfigEndpoint } from '../utils/api-utils';
 import { ApiService } from './api.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { TokenProvider } from './api.service';
+import { TokenService } from './token.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class AuthService {
-  private readonly TOKEN_KEY = 'auth_token';
-  private readonly REFRESH_TOKEN_KEY = 'refresh_token';
+export class AuthService implements TokenProvider {
   private readonly USER_KEY = 'user_data';
-  private readonly AUTO_LOGIN_TOKEN_KEY = 'auto_login_token';
 
   private authStateSubject = new BehaviorSubject<AuthState>({
     user: null,
@@ -31,9 +30,6 @@ export class AuthService {
     isLoading: false,
     error: null,
   });
-
-  // Separate token for auto-login functionality
-  private autoLoginToken: string | null = null;
 
   public authState$ = this.authStateSubject.asObservable();
   public currentUser$ = this.authState$.pipe(map((state) => state.user));
@@ -45,19 +41,20 @@ export class AuthService {
   constructor(
     private apiService: ApiService,
     private router: Router,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private tokenService: TokenService
   ) {
     this.initializeAuthState();
+    
+    // Debug auth state on startup
+    setTimeout(() => this.debugAuthState(), 1000);
   }
 
   private initializeAuthState(): void {
-    const token = this.storageService.getItem(this.TOKEN_KEY);
-    const refreshToken = this.storageService.getItem(this.REFRESH_TOKEN_KEY);
+    const token = this.tokenService.getAccessToken();
+    const refreshToken = this.tokenService.getRefreshToken();
     const userDataStr = this.storageService.getItem(this.USER_KEY);
     
-    // Initialize auto-login token if it exists
-    this.autoLoginToken = this.storageService.getItem(this.AUTO_LOGIN_TOKEN_KEY);
-
     if (token && userDataStr) {
       try {
         const userData = JSON.parse(userDataStr) as User;
@@ -81,18 +78,34 @@ export class AuthService {
     credentials.clientId = environment.clientId;
     credentials.clientSecret = environment.clientSecret;
 
+    console.log('Login attempt with credentials:', {
+      username: credentials.username,
+      hasPassword: !!credentials.password,
+      clientId: credentials.clientId
+    });
+
     const endpoint = getConfigEndpoint('auth', 'login');
     return this.apiService.post<any>(endpoint, credentials).pipe(
       tap((response) => {
+        console.log('Login response received:', {
+          hasAccessToken: !!response.access_token || !!response.accessToken,
+          hasRefreshToken: !!response.refresh_token || !!response.refreshToken
+        });
+
+        // Handle different API response formats
+        const accessToken = response.access_token || response.accessToken;
+        const refreshToken = response.refresh_token || response.refreshToken;
+        
         this.setSession(
           response as User,
-          response.access_token,
-          response.refresh_token
+          accessToken,
+          refreshToken
         );
         this.setLoading(false);
       }),
       map((response) => response as User),
       catchError((error) => {
+        console.error('Login error:', error);
         this.handleAuthError(error);
         return throwError(() => error);
       })
@@ -146,55 +159,127 @@ export class AuthService {
   }
 
   refreshToken(): Observable<string> {
+    // Set flag in token service
+    this.tokenService.setRefreshInProgress(true);
+    
+    // Get tokens
     const refreshToken = this.authStateSubject.value.refreshToken;
-
-    if (!refreshToken) {
-      return throwError(() => new Error('No refresh token available'));
+    const autoLoginToken = this.tokenService.getAutoLoginToken();
+    
+    // If we don't have a refresh token, try to use autoLogin token instead
+    if (!refreshToken && autoLoginToken) {
+      console.log('Using autoLogin token instead of refresh token');
+      const currentState = this.authStateSubject.value;
+      
+      // Set the autoLogin token as the current access token
+      this.authStateSubject.next({
+        ...currentState,
+        accessToken: autoLoginToken,
+      });
+      
+      // Update token service
+      this.tokenService.setAccessToken(autoLoginToken);
+      
+      // Reset refresh in progress flag
+      this.tokenService.setRefreshInProgress(false);
+      
+      // Return the autoLogin token
+      return of(autoLoginToken);
     }
 
-    const endpoint = getConfigEndpoint('auth', 'refreshToken');
-    return this.apiService.post<{ accessToken: string; refreshToken: string }>(
-      endpoint, { refreshToken }
-    ).pipe(
-      tap((response) => {
-        const currentState = this.authStateSubject.value;
-        this.authStateSubject.next({
-          ...currentState,
-          accessToken: response.accessToken,
-          refreshToken: response.refreshToken,
-        });
+    // If no refresh token and no autoLogin token, return error
+    if (!refreshToken && !autoLoginToken) {
+      this.tokenService.setRefreshInProgress(false);
+      return throwError(() => new Error('No refresh token or autoLogin token available'));
+    }
 
-        this.storageService.setItem(this.TOKEN_KEY, response.accessToken);
-        this.storageService.setItem(
-          this.REFRESH_TOKEN_KEY,
-          response.refreshToken
-        );
-      }),
-      map((response) => response.accessToken),
-      catchError((error) => {
-        this.logout();
-        return throwError(() => error);
-      })
-    );
+    // If we have a refresh token, proceed with normal token refresh
+    if (refreshToken) {
+      // We need to bypass the ApiService since it uses HTTP interceptors which could lead to circular calls
+      // Instead we'll use HttpClient directly through a custom endpoint that won't be intercepted
+      const endpoint = getConfigEndpoint('auth', 'refreshToken');
+      
+      // Create request data
+      const refreshData = { 
+        refreshToken,
+        clientId: environment.clientId,
+        clientSecret: environment.clientSecret
+      };
+
+      // Make a direct HTTP call to avoid the interceptor loop
+      return this.apiService.post<{ accessToken: string; refreshToken: string }>(
+        endpoint, refreshData
+      ).pipe(
+        tap((response) => {
+          // Update state with new tokens
+          const currentState = this.authStateSubject.value;
+          this.authStateSubject.next({
+            ...currentState,
+            accessToken: response.accessToken,
+            refreshToken: response.refreshToken,
+          });
+
+          // Update token service
+          this.tokenService.setAccessToken(response.accessToken);
+          this.tokenService.setRefreshToken(response.refreshToken);
+          
+          console.log('Token refreshed successfully');
+        }),
+        map((response) => response.accessToken),
+        catchError((error) => {
+          console.error('Error refreshing token:', error);
+          
+          // If refresh token fails, try autoLogin token as fallback
+          if (autoLoginToken) {
+            console.log('Refresh token failed, using autoLogin token as fallback');
+            const currentState = this.authStateSubject.value;
+            
+            this.authStateSubject.next({
+              ...currentState,
+              accessToken: autoLoginToken,
+            });
+            
+            this.tokenService.setAccessToken(autoLoginToken);
+            return of(autoLoginToken);
+          }
+          
+          // If no autoLogin token either, logout the user
+          this.logout();
+          return throwError(() => error);
+        }),
+        finalize(() => {
+          // Always reset the refresh in progress flag
+          this.tokenService.setRefreshInProgress(false);
+        })
+      );
+    }
+
+    // This line shouldn't be reached, but TypeScript needs it for proper type checking
+    this.tokenService.setRefreshInProgress(false);
+    return of('');
+  }
+
+  // Implement the TokenProvider interface method
+  getToken(): string | null {
+    // First try to get the regular user token
+    const userToken = this.authStateSubject.value.accessToken;
+    
+    // If no user token, use the auto-login token
+    return userToken || this.tokenService.getAutoLoginToken();
   }
 
   /**
    * Gets the access token from either regular auth or auto-login if available
    */
   getAccessToken(): string | null {
-    // First try to get the regular user token
-    const userToken = this.authStateSubject.value.accessToken;
-    
-    // If no user token, use the auto-login token
-    return userToken || this.autoLoginToken;
+    return this.getToken();
   }
 
   /**
    * Set the auto-login token 
    */
   setAutoLoginToken(token: string): void {
-    this.autoLoginToken = token;
-    this.storageService.setItem(this.AUTO_LOGIN_TOKEN_KEY, token);
+    this.tokenService.setAutoLoginToken(token);
   }
 
   private setSession(
@@ -202,11 +287,14 @@ export class AuthService {
     accessToken: string,
     refreshToken: string | null
   ): void {
-    this.storageService.setItem(this.TOKEN_KEY, accessToken);
     this.storageService.setItem(this.USER_KEY, JSON.stringify(user));
 
+    if (accessToken) {
+      this.tokenService.setAccessToken(accessToken);
+    }
+    
     if (refreshToken) {
-      this.storageService.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
+      this.tokenService.setRefreshToken(refreshToken);
     }
 
     this.authStateSubject.next({
@@ -220,8 +308,7 @@ export class AuthService {
   }
 
   private clearLocalStorage(): void {
-    this.storageService.removeItem(this.TOKEN_KEY);
-    this.storageService.removeItem(this.REFRESH_TOKEN_KEY);
+    this.tokenService.clearTokens();
     this.storageService.removeItem(this.USER_KEY);
     // Don't clear auto-login token on regular logout
   }
@@ -252,6 +339,29 @@ export class AuthService {
       ...currentState,
       isLoading: false,
       error: errorMessage,
+    });
+  }
+
+  /**
+   * Debug the current authentication state
+   */
+  debugAuthState(): void {
+    const token = this.tokenService.getAccessToken();
+    const refreshToken = this.tokenService.getRefreshToken();
+    const autoLoginToken = this.tokenService.getAutoLoginToken();
+    const userDataStr = this.storageService.getItem(this.USER_KEY);
+    
+    console.log('Current Auth State:', {
+      hasAccessToken: !!token,
+      hasRefreshToken: !!refreshToken,
+      hasAutoLoginToken: !!autoLoginToken,
+      hasUserData: !!userDataStr,
+      isLoggedIn: this.authStateSubject.value.isLoggedIn
+    });
+    
+    // Token provider check
+    console.log('Token provider check:', {
+      getToken: !!this.getToken()
     });
   }
 }

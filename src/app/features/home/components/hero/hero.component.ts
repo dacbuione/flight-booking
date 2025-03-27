@@ -420,10 +420,10 @@ export class HeroComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     // Handle seat class dropdown
-    const seatClassDropdown = document.querySelector(
-      '.seat-class-menu'
+    const seatClassDropdown = document.querySelector('.seat-class-menu');
+    const seatClassButton = document.querySelector(
+      '.selector-item:first-child'
     );
-    const seatClassButton = document.querySelector('.selector-item:first-child');
 
     if (
       this.isSeatClassDropdownOpen &&
@@ -445,7 +445,7 @@ export class HeroComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     this.isPassengerDropdownOpen = !this.isPassengerDropdownOpen;
     this.isSeatClassDropdownOpen = false;
-    
+
     if (this.isPassengerDropdownOpen) {
       setTimeout(() => this.positionDropdown('passenger'), 0);
     }
@@ -457,7 +457,7 @@ export class HeroComponent implements OnInit, OnDestroy, AfterViewInit {
   toggleSeatClassDropdown() {
     this.isSeatClassDropdownOpen = !this.isSeatClassDropdownOpen;
     this.isPassengerDropdownOpen = false;
-    
+
     if (this.isSeatClassDropdownOpen) {
       setTimeout(() => this.positionDropdown('seat-class'), 0);
     }
@@ -618,25 +618,29 @@ export class HeroComponent implements OnInit, OnDestroy, AfterViewInit {
   searchFlights() {
     if (this.searchForm.valid) {
       const formData = this.searchForm.value;
-      
+
       // Navigate to flight listing page with search parameters
       this.router.navigate(['/flight-listing'], {
         queryParams: {
           origin: formData.origin,
           destination: formData.destination,
           departDate: this.formatDate(formData.departDate),
-          returnDate: formData.tripType === 'roundtrip' ? this.formatDate(formData.returnDate) : null,
+          returnDate:
+            formData.tripType === 'roundtrip'
+              ? this.formatDate(formData.returnDate)
+              : null,
           adults: this.adultCount(),
           children: this.childCount(),
           infants: this.infantCount(),
           cabinClass: formData.seatClass,
-          tripType: formData.tripType,
-          flexibleDates: formData.flexibleDates || false
-        }
+          tripType: 'oneway',
+          // tripType: formData.tripType,
+          flexibleDates: formData.flexibleDates || false,
+        },
       });
     }
   }
-  
+
   private formatDate(date: Date): string {
     if (!date) return '';
     const year = date.getFullYear();
@@ -798,29 +802,31 @@ export class HeroComponent implements OnInit, OnDestroy, AfterViewInit {
 
   positionDropdown(type: 'passenger' | 'seat-class') {
     if (!this.isBrowser) return;
-    
-    const triggerElement = type === 'passenger' 
-      ? document.querySelector('.passenger-btn') 
-      : document.querySelector('.selector-item:not(.passenger-btn)');
-      
-    const dropdownElement = type === 'passenger'
-      ? document.querySelector('.dropdown-menu.passenger-menu')
-      : document.querySelector('.dropdown-menu.seat-class-menu');
-      
+
+    const triggerElement =
+      type === 'passenger'
+        ? document.querySelector('.passenger-btn')
+        : document.querySelector('.selector-item:not(.passenger-btn)');
+
+    const dropdownElement =
+      type === 'passenger'
+        ? document.querySelector('.dropdown-menu.passenger-menu')
+        : document.querySelector('.dropdown-menu.seat-class-menu');
+
     if (!triggerElement || !dropdownElement) return;
-    
+
     const triggerRect = triggerElement.getBoundingClientRect();
     const dropdownRect = dropdownElement.getBoundingClientRect();
-    
+
     // Calculate position
     let top = triggerRect.top - dropdownRect.height - 10; // Position above button by default
     const left = triggerRect.left + triggerRect.width - dropdownRect.width;
-    
+
     // If dropdown would go off the top of the screen, position it below the button
     if (top < 10) {
       top = triggerRect.bottom + 10;
     }
-    
+
     // Apply position to dropdown
     (dropdownElement as HTMLElement).style.top = `${top}px`;
     (dropdownElement as HTMLElement).style.left = `${left}px`;

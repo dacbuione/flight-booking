@@ -4,7 +4,7 @@ import { environment } from '../../../environments/environment';
  * API configuration object with common settings
  */
 export const apiConfig = {
-  baseUrl: environment.apiUrl,
+  baseUrl: '/api',
   defaultTimeout: 30000, // 30 seconds
   retryCount: 3,
   retryDelay: 1000, // 1 second
@@ -24,7 +24,8 @@ export const apiConfig = {
       search: 'flights/search',
       details: 'flights/{id}',
       popular: 'flights/popular',
-      airports: 'flights/airports'
+      airports: 'flights/airports',
+      offers: 'flight/shopping/offers'
     },
     bookings: {
       create: 'bookings',

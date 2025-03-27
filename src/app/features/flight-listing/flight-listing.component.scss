@@ -53,6 +53,37 @@
   }
 }
 
+// Fare options styling
+.fare-option {
+  transition: all 0.2s ease;
+  cursor: pointer;
+  min-height: 100%;
+  
+  &:hover {
+    border-color: #007bff !important;
+    background-color: rgba(0, 123, 255, 0.05);
+  }
+  
+  &.active {
+    border-color: #007bff !important;
+    background-color: rgba(0, 123, 255, 0.1);
+    box-shadow: 0 2px 5px rgba(0, 123, 255, 0.2);
+  }
+  
+  h6 {
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  
+  .price {
+    color: #007bff;
+  }
+  
+  .small {
+    font-size: 0.75rem;
+  }
+}
+
 .airline-logo {
   max-width: 100%;
   height: auto;
@@ -94,6 +125,10 @@
   
   .price-container {
     margin-bottom: 1rem !important;
+  }
+  
+  .fare-option {
+    margin-bottom: 0.5rem;
   }
 }
 

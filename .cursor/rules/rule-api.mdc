@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+bạn cần phải tuân thủ hướng dẫn về proxy tránh phát sinh lỗi cors đã config trước đó theo hướng dẫn https://srinathsree122.medium.com/fixing-cors-issues-in-angular16-application-3d53d46dc845
