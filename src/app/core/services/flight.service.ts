@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable, delay, of } from 'rxjs';
 import { Flight, FlightSearchCriteria, Airport } from '../models/flight.model';
-import { environment } from '../../../environments/environment';
+import { ApiService } from './api.service';
+import { getConfigEndpoint } from '../utils/api-utils';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FlightService {
-  private readonly apiUrl = `${environment.apiUrl}/flights`;
+  private readonly endpoint = 'flights';
 
   // Temporary mock data - in production, this would come from the API
   private mockFlights: Flight[] = [
@@ -132,7 +132,7 @@ export class FlightService {
     { code: 'PQC', city: 'Phú Quốc', country: 'Việt Nam', image: 'assets/images/destinations/phu-quoc.jpg' }
   ];
 
-  constructor(private http: HttpClient) { }
+  constructor(private apiService: ApiService) { }
 
   /**
    * Get list of all airports
@@ -140,7 +140,7 @@ export class FlightService {
    */
   getAirports(): Observable<Airport[]> {
     // In a real app, we would call the API
-    // return this.http.get<Airport[]>(`${this.apiUrl}/airports`);
+    // return this.apiService.get<Airport[]>(getConfigEndpoint('flights', 'airports'));
     
     // For now, return mock data
     return of(this.mockAirports);
@@ -152,7 +152,7 @@ export class FlightService {
    */
   getPopularDestinations(): Observable<any[]> {
     // In a real app, would call API
-    // return this.http.get<any[]>(`${this.apiUrl}/popular-destinations`);
+    // return this.apiService.get<any[]>(getConfigEndpoint('flights', 'popular'));
     
     // Return mock data
     return of(this.mockPopularDestinations);
@@ -165,7 +165,7 @@ export class FlightService {
    */
   searchFlights(criteria: FlightSearchCriteria): Observable<Flight[]> {
     // In a real app, this would be an API call with the criteria
-    // return this.http.post<Flight[]>(`${this.apiUrl}/flights/search`, criteria);
+    // return this.apiService.post<Flight[]>(getConfigEndpoint('flights', 'search'), criteria);
     
     // For development, return empty array
     return of([]);
@@ -177,7 +177,8 @@ export class FlightService {
    * @returns Observable with flight details
    */
   getFlightDetails(flightId: string): Observable<Flight> {
-    // In a real app: return this.http.get<Flight>(`${this.apiUrl}/flights/${flightId}`);
+    // In a real app: 
+    // return this.apiService.get<Flight>(getConfigEndpoint('flights', 'details', { id: flightId }));
     
     // For development, return null
     return of({} as Flight);
@@ -185,6 +186,8 @@ export class FlightService {
 
   getFlightById(id: string): Observable<Flight | undefined> {
     // In a real application, this would make an API call
+    // return this.apiService.get<Flight>(getConfigEndpoint('flights', 'details', { id }));
+    
     const flight = this.mockFlights.find(f => f.id === id);
     return of(flight).pipe(delay(500));
   }

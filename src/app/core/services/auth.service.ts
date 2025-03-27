@@ -11,6 +11,7 @@ import {
   RegisterData,
 } from '../models/user.model';
 import { StorageService } from './storage.service';
+import { getConfigEndpoint } from '../utils/api-utils';
 
 @Injectable({
   providedIn: 'root',
@@ -73,7 +74,7 @@ export class AuthService {
     credentials.clientId = environment.clientId;
     credentials.clientSecret = environment.clientSecret;
 
-    return this.http.post(`${this.API_URL}/login`, credentials).pipe(
+    return this.http.post(getConfigEndpoint('auth', 'login'), credentials).pipe(
       tap((response) => {
         this.setSession(
           response as User,

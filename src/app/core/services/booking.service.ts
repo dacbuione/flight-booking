@@ -1,16 +1,15 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable, delay, of } from 'rxjs';
 import { Booking, BookingStatus, ContactInfo, Passenger, PaymentStatus } from '../models/booking.model';
 import { Flight } from '../models/flight.model';
-import { environment } from '../../../environments/environment';
+import { ApiService } from './api.service';
+import { getConfigEndpoint } from '../utils/api-utils';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BookingService {
-  private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.apiUrl}/bookings`;
+  private readonly apiService = inject(ApiService);
 
   // Temporary mock bookings for demo
   private mockBookings: Booking[] = [
@@ -35,11 +34,13 @@ export class BookingService {
 
   getBookingsByUserId(userId: string): Observable<Booking[]> {
     // In a real app, this would be an API call
+    // return this.apiService.get<Booking[]>(getConfigEndpoint('bookings', 'list', { userId }));
     return of(this.mockBookings).pipe(delay(800));
   }
 
   getBookingById(id: string): Observable<Booking | undefined> {
     // In a real app, this would be an API call
+    // return this.apiService.get<Booking>(getConfigEndpoint('bookings', 'details', { id }));
     const booking = this.mockBookings.find(b => b.id === id);
     return of(booking).pipe(delay(500));
   }
@@ -51,6 +52,14 @@ export class BookingService {
     userId?: string
   ): Observable<Booking> {
     // In a real app, this would be an API call
+    // const bookingData = {
+    //   userId: userId || 'guest',
+    //   flights,
+    //   passengers,
+    //   contactInfo
+    // };
+    // return this.apiService.post<Booking>(getConfigEndpoint('bookings', 'create'), bookingData);
+    
     const newBooking: Booking = {
       id: (this.mockBookings.length + 1).toString(),
       bookingReference: `BK${Math.floor(10000 + Math.random() * 90000)}`,
@@ -72,6 +81,11 @@ export class BookingService {
 
   updateBookingStatus(id: string, status: BookingStatus): Observable<Booking | undefined> {
     // In a real app, this would be an API call
+    // return this.apiService.patch<Booking>(
+    //   getConfigEndpoint('bookings', 'updateStatus', { id }), 
+    //   { status }
+    // );
+    
     const bookingIndex = this.mockBookings.findIndex(b => b.id === id);
     if (bookingIndex === -1) {
       return of(undefined);
@@ -88,6 +102,11 @@ export class BookingService {
 
   updatePaymentStatus(id: string, paymentStatus: PaymentStatus): Observable<Booking | undefined> {
     // In a real app, this would be an API call
+    // return this.apiService.patch<Booking>(
+    //   getConfigEndpoint('bookings', 'updatePayment', { id }), 
+    //   { paymentStatus }
+    // );
+    
     const bookingIndex = this.mockBookings.findIndex(b => b.id === id);
     if (bookingIndex === -1) {
       return of(undefined);
@@ -111,6 +130,7 @@ export class BookingService {
 
   cancelBooking(id: string): Observable<Booking | undefined> {
     // In a real app, this would be an API call
+    // return this.apiService.patch<Booking>(getConfigEndpoint('bookings', 'cancel', { id }), {});
     return this.updateBookingStatus(id, BookingStatus.CANCELLED);
   }
 } 
