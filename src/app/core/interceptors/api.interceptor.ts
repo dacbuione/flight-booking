@@ -4,18 +4,25 @@ import {
   HttpHandler,
   HttpEvent,
   HttpInterceptor,
-  HttpErrorResponse
+  HttpErrorResponse,
 } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { apiConfig } from '../config/api.config';
 import { TokenService } from '../services/token.service';
+import { AuthService } from '../services/auth.service';
 
 @Injectable()
 export class ApiInterceptor implements HttpInterceptor {
-  constructor(private tokenService: TokenService) {}
+  constructor(
+    private tokenService: TokenService,
+    private authService: AuthService
+  ) {}
 
-  intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
+  intercept(
+    request: HttpRequest<unknown>,
+    next: HttpHandler
+  ): Observable<HttpEvent<unknown>> {
     // Only intercept requests to our API
     if (!request.url.startsWith('/api')) {
       return next.handle(request);
@@ -26,19 +33,19 @@ export class ApiInterceptor implements HttpInterceptor {
 
     // Get access token
     const token = this.tokenService.getAccessToken();
-    
+
     console.log('API Interceptor processing request:', {
       url: request.url,
       method: request.method,
       hasToken: !!token,
-      hasAuthHeader: request.headers.has('Authorization')
+      hasAuthHeader: request.headers.has('Authorization'),
     });
 
     // Clone the request and add common headers
     const headers: Record<string, string> = {
       'Content-Type': apiConfig.headers.contentType,
-      'Accept': apiConfig.headers.accept,
-      'X-App-Version': apiConfig.headers.appVersion
+      Accept: apiConfig.headers.accept,
+      'X-App-Version': apiConfig.headers.appVersion,
     };
 
     // Add Authorization header if token exists
@@ -48,13 +55,14 @@ export class ApiInterceptor implements HttpInterceptor {
     }
 
     const apiRequest = request.clone({
-      setHeaders: headers
+      setHeaders: headers,
     });
-    
+
     // Log the modified request headers
-    console.log('Final request headers:', 
-      Array.from(apiRequest.headers.keys()).map(key => 
-        `${key}: ${apiRequest.headers.get(key)}`
+    console.log(
+      'Final request headers:',
+      Array.from(apiRequest.headers.keys()).map(
+        (key) => `${key}: ${apiRequest.headers.get(key)}`
       )
     );
 
@@ -65,12 +73,22 @@ export class ApiInterceptor implements HttpInterceptor {
         // Handle common error scenarios
         if (error.status === 0) {
           console.error('Network error - please check your connection');
-        } 
+        }
         // Skip 401 errors - these are handled by AuthInterceptor, but log for debugging
         else if (error.status === apiConfig.statusCodes.unauthorized) {
-          console.error('API Interceptor: 401 Unauthorized error detected for URL:', request.url, 'This will be handled by AuthInterceptor');
-        }
-        else if (error.status === apiConfig.statusCodes.forbidden) {
+          console.error(
+            'API Interceptor: 401 Unauthorized error detected for URL:',
+            request.url,
+            'This will be handled by AuthInterceptor'
+          );
+          console.log('Attempting auto-login due to unauthorized error');
+          return this.authService.performAutoLogin().pipe(
+            catchError((autoLoginError) => {
+              console.error('Auto-login failed:', autoLoginError);
+              return throwError(() => error);
+            })
+          );
+        } else if (error.status === apiConfig.statusCodes.forbidden) {
           console.error('Authorization error - you do not have permission');
         } else if (error.status === apiConfig.statusCodes.serverError) {
           console.error('Server error - please try again later');
@@ -85,4 +103,4 @@ export class ApiInterceptor implements HttpInterceptor {
       })
     );
   }
-} 
+}

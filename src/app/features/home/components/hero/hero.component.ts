@@ -340,9 +340,9 @@ export class HeroComponent implements OnInit, OnDestroy, AfterViewInit {
     
     // Create form with default values
     this.searchForm = this.fb.group({
-      tripType: ['roundtrip', Validators.required],
-      origin: ['HAN', Validators.required],
-      destination: ['SGN', Validators.required],
+      tripType: ['return', Validators.required],
+      origin: ['', Validators.required],
+      destination: ['', Validators.required],
       departDate: [today, Validators.required],
       returnDate: [returnDate, Validators.required],
       adults: [1, [Validators.required, Validators.min(1), Validators.max(9)]],
@@ -354,7 +354,7 @@ export class HeroComponent implements OnInit, OnDestroy, AfterViewInit {
     });
     
     // Set validators conditionally for return date based on trip type
-    this.setTripType('roundtrip');
+    this.setTripType('return');
   }
 
   ngOnInit() {
@@ -500,13 +500,13 @@ export class HeroComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.backgrounds[this.currentBackgroundIndex()];
   }
 
-  setTripType(type: 'oneway' | 'roundtrip') {
+  setTripType(type: 'oneway' | 'return') {
     this.searchForm.get('tripType')?.setValue(type);
     this.handleTripTypeChange(type);
   }
 
   handleTripTypeChange(type: string) {
-    if (type === 'roundtrip') {
+    if (type === 'return') {
       this.searchForm.get('returnDate')?.enable();
 
       // When enabling returnDate, make sure it's not before departDate
@@ -634,7 +634,7 @@ export class HeroComponent implements OnInit, OnDestroy, AfterViewInit {
           destination: formData.destination,
           departDate: this.formatDate(formData.departDate),
           returnDate:
-            formData.tripType === 'roundtrip'
+            formData.tripType === 'return'
               ? this.formatDate(formData.returnDate)
               : null,
           adults: this.adultCount(),
@@ -719,10 +719,10 @@ export class HeroComponent implements OnInit, OnDestroy, AfterViewInit {
       destination: destination,
       departDate: new Date(new Date().setDate(new Date().getDate() + 7)),
       returnDate: new Date(new Date().setDate(new Date().getDate() + 14)),
-      tripType: 'roundtrip',
+      tripType: 'return',
     });
 
-    this.handleTripTypeChange('roundtrip');
+    this.handleTripTypeChange('return');
 
     // Scroll to the search form
     const searchContainer = document.querySelector('.search-container');

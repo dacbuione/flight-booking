@@ -311,7 +311,7 @@ export class FlightService {
           departureDate: searchParams.departDate,
         },
       ],
-      tripType: searchParams.tripType?.toUpperCase() === 'ROUNDTRIP' ? 'ROUND_TRIP' : 'ONE_WAY',
+      tripType: searchParams.tripType?.toUpperCase() === 'RETURN' ? 'RETURN' : 'ONE_WAY',
       travelerCount: {
         adult: parseInt(searchParams.passengers?.adults || 1, 10),
         child: parseInt(searchParams.passengers?.children || 0, 10),
@@ -334,7 +334,7 @@ export class FlightService {
     // If it's a round trip, add return flight
     if (
       searchParams.returnDate &&
-      searchParams.tripType?.toUpperCase() === 'ROUNDTRIP'
+      searchParams.tripType?.toUpperCase() === 'RETURN'
     ) {
       payload.originDestinations.push({
         id: '2',
